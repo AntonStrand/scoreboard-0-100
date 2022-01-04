@@ -5195,6 +5195,57 @@ var $elm$core$Platform$Sub$batch = _Platform_batch;
 var $elm$core$Platform$Sub$none = $elm$core$Platform$Sub$batch(_List_Nil);
 var $elm$json$Json$Decode$null = _Json_decodeNull;
 var $elm$json$Json$Decode$oneOf = _Json_oneOf;
+var $elm$core$Basics$negate = function (n) {
+	return -n;
+};
+var $elm$core$Basics$abs = function (n) {
+	return (n < 0) ? (-n) : n;
+};
+var $elm$core$Maybe$map2 = F3(
+	function (func, ma, mb) {
+		if (ma.$ === 'Nothing') {
+			return $elm$core$Maybe$Nothing;
+		} else {
+			var a = ma.a;
+			if (mb.$ === 'Nothing') {
+				return $elm$core$Maybe$Nothing;
+			} else {
+				var b = mb.a;
+				return $elm$core$Maybe$Just(
+					A2(func, a, b));
+			}
+		}
+	});
+var $author$project$Main$answer = function (_v0) {
+	var guess = _v0.guess;
+	var correct = _v0.correct;
+	return A3(
+		$elm$core$Maybe$map2,
+		F2(
+			function (g, c) {
+				return {
+					correct: c,
+					guess: g,
+					score: (!(c - g)) ? (-10) : $elm$core$Basics$abs(c - g)
+				};
+			}),
+		guess,
+		correct);
+};
+var $elm$core$Basics$clamp = F3(
+	function (low, high, number) {
+		return (_Utils_cmp(number, low) < 0) ? low : ((_Utils_cmp(number, high) > 0) ? high : number);
+	});
+var $elm$core$Maybe$map = F2(
+	function (f, maybe) {
+		if (maybe.$ === 'Just') {
+			var value = maybe.a;
+			return $elm$core$Maybe$Just(
+				f(value));
+		} else {
+			return $elm$core$Maybe$Nothing;
+		}
+	});
 var $elm$core$Maybe$destruct = F3(
 	function (_default, func, maybe) {
 		if (maybe.$ === 'Just') {
@@ -5228,8 +5279,8 @@ var $elm$json$Json$Encode$object = function (pairs) {
 			_Json_emptyObject(_Utils_Tuple0),
 			pairs));
 };
-var $author$project$Main$setStorage = _Platform_outgoingPort(
-	'setStorage',
+var $author$project$Main$saveState = _Platform_outgoingPort(
+	'saveState',
 	function ($) {
 		return $elm$json$Json$Encode$object(
 			_List_fromArray(
@@ -5291,57 +5342,6 @@ var $author$project$Main$setStorage = _Platform_outgoingPort(
 						})($.questions))
 				]));
 	});
-var $elm$core$Basics$negate = function (n) {
-	return -n;
-};
-var $elm$core$Basics$abs = function (n) {
-	return (n < 0) ? (-n) : n;
-};
-var $elm$core$Maybe$map2 = F3(
-	function (func, ma, mb) {
-		if (ma.$ === 'Nothing') {
-			return $elm$core$Maybe$Nothing;
-		} else {
-			var a = ma.a;
-			if (mb.$ === 'Nothing') {
-				return $elm$core$Maybe$Nothing;
-			} else {
-				var b = mb.a;
-				return $elm$core$Maybe$Just(
-					A2(func, a, b));
-			}
-		}
-	});
-var $author$project$Main$answer = function (_v0) {
-	var guess = _v0.guess;
-	var correct = _v0.correct;
-	return A3(
-		$elm$core$Maybe$map2,
-		F2(
-			function (g, c) {
-				return {
-					correct: c,
-					guess: g,
-					score: (!(c - g)) ? (-10) : $elm$core$Basics$abs(c - g)
-				};
-			}),
-		guess,
-		correct);
-};
-var $elm$core$Basics$clamp = F3(
-	function (low, high, number) {
-		return (_Utils_cmp(number, low) < 0) ? low : ((_Utils_cmp(number, high) > 0) ? high : number);
-	});
-var $elm$core$Maybe$map = F2(
-	function (f, maybe) {
-		if (maybe.$ === 'Just') {
-			var value = maybe.a;
-			return $elm$core$Maybe$Just(
-				f(value));
-		} else {
-			return $elm$core$Maybe$Nothing;
-		}
-	});
 var $elm$core$Basics$composeR = F3(
 	function (f, g, x) {
 		return g(
@@ -5358,55 +5358,53 @@ var $author$project$Main$update = F2(
 	function (msg, model) {
 		var limit = $elm$core$Maybe$map(
 			A2($elm$core$Basics$clamp, 0, 100));
-		switch (msg.$) {
-			case 'SetGuess':
-				var guess = msg.a;
-				return _Utils_update(
-					model,
-					{
-						current: {
-							correct: model.current.correct,
-							guess: limit(guess)
-						}
-					});
-			case 'SetCorrect':
-				var correct = msg.a;
-				return _Utils_update(
-					model,
-					{
-						current: {
-							correct: limit(correct),
-							guess: model.current.guess
-						}
-					});
-			case 'Answer':
-				return A3(
-					$author$project$Main$unwrap,
-					model,
-					function (a) {
-						return _Utils_update(
-							model,
-							{
-								answered: A2($elm$core$List$cons, a, model.answered),
-								current: $author$project$Main$initUnanswered
-							});
-					},
-					$author$project$Main$answer(model.current));
-			case 'Restart':
-				return $author$project$Main$initialModel;
-			default:
-				return model;
-		}
-	});
-var $author$project$Main$updateWithStorage = F2(
-	function (msg, model) {
-		var newModel = A2($author$project$Main$update, msg, model);
+		var newModel = function () {
+			switch (msg.$) {
+				case 'SetGuess':
+					var guess = msg.a;
+					return _Utils_update(
+						model,
+						{
+							current: {
+								correct: model.current.correct,
+								guess: limit(guess)
+							}
+						});
+				case 'SetCorrect':
+					var correct = msg.a;
+					return _Utils_update(
+						model,
+						{
+							current: {
+								correct: limit(correct),
+								guess: model.current.guess
+							}
+						});
+				case 'Answer':
+					return A3(
+						$author$project$Main$unwrap,
+						model,
+						function (a) {
+							return _Utils_update(
+								model,
+								{
+									answered: A2($elm$core$List$cons, a, model.answered),
+									current: $author$project$Main$initUnanswered
+								});
+						},
+						$author$project$Main$answer(model.current));
+				case 'Restart':
+					return $author$project$Main$initialModel;
+				default:
+					return model;
+			}
+		}();
 		return _Utils_Tuple2(
 			newModel,
 			$elm$core$Platform$Cmd$batch(
 				_List_fromArray(
 					[
-						$author$project$Main$setStorage(newModel)
+						$author$project$Main$saveState(newModel)
 					])));
 	});
 var $elm$html$Html$div = _VirtualDom_node('div');
@@ -5712,6 +5710,7 @@ var $author$project$Main$viewAnswered = function (answered) {
 };
 var $author$project$Main$Answer = {$: 'Answer'};
 var $author$project$Main$Noop = {$: 'Noop'};
+var $author$project$Main$Restart = {$: 'Restart'};
 var $author$project$Main$SetCorrect = function (a) {
 	return {$: 'SetCorrect', a: a};
 };
@@ -5820,10 +5819,25 @@ var $author$project$Main$viewCurrent = function (_v0) {
 				_List_fromArray(
 					[
 						$elm$html$Html$text('Klar')
+					])),
+				A2(
+				$elm$html$Html$div,
+				_List_Nil,
+				_List_fromArray(
+					[
+						A2(
+						$elm$html$Html$button,
+						_List_fromArray(
+							[
+								$elm$html$Html$Events$onClick($author$project$Main$Restart)
+							]),
+						_List_fromArray(
+							[
+								$elm$html$Html$text('Starta om')
+							]))
 					]))
 			]));
 };
-var $author$project$Main$Restart = {$: 'Restart'};
 var $elm$html$Html$h1 = _VirtualDom_node('h1');
 var $author$project$Main$viewScore = function (answered) {
 	return A2(
@@ -5867,7 +5881,7 @@ var $author$project$Main$main = $elm$browser$Browser$document(
 		subscriptions: function (_v0) {
 			return $elm$core$Platform$Sub$none;
 		},
-		update: $author$project$Main$updateWithStorage,
+		update: $author$project$Main$update,
 		view: function (model) {
 			return {
 				body: _List_fromArray(

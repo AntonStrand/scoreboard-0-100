@@ -16,7 +16,7 @@ const ITEM = 'scoreboard-0-100';
 const storedState = localStorage.getItem(ITEM);
 const startingState = storedState ? JSON.parse(storedState) : null;
 const app = Elm.Main.init({ flags: startingState });
-app.ports.setStorage.subscribe(function(state) {
+app.ports.saveState.subscribe(function(state) {
     localStorage.setItem(ITEM, JSON.stringify(state));
 });
 </script>

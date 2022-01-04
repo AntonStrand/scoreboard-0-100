@@ -11,26 +11,20 @@ main =
     Browser.document
         { init = init
         , view = \model -> { title = "0-100", body = [ view model ] }
-        , update = updateWithStorage
+        , update = update
         , subscriptions = \_ -> Sub.none
         }
 
 
-port setStorage : Model -> Cmd msg
+
+-- PORTS
 
 
-{-| We want to `setStorage` on every update. This function adds the setStorage
-command for every step of the update function.
--}
-updateWithStorage : Msg -> Model -> ( Model, Cmd Msg )
-updateWithStorage msg model =
-    let
-        newModel =
-            update msg model
-    in
-    ( newModel
-    , Cmd.batch [ setStorage newModel ]
-    )
+port saveState : Model -> Cmd msg
+
+
+
+-- MODEL
 
 
 type alias Answered =
@@ -75,9 +69,8 @@ init maybeModel =
     )
 
 
-unwrap : b -> (a -> b) -> Maybe a -> b
-unwrap default f =
-    Maybe.map f >> Maybe.withDefault default
+
+-- UPDATE
 
 
 type Msg
@@ -106,28 +99,35 @@ answer { guess, correct } =
         correct
 
 
-update : Msg -> Model -> Model
+update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     let
         limit =
             Maybe.map (clamp 0 100)
+
+        newModel =
+            case msg of
+                SetGuess guess ->
+                    { model | current = { guess = limit guess, correct = model.current.correct } }
+
+                SetCorrect correct ->
+                    { model | current = { guess = model.current.guess, correct = limit correct } }
+
+                Answer ->
+                    answer model.current
+                        |> unwrap model (\a -> { model | answered = a :: model.answered, current = initUnanswered })
+
+                Restart ->
+                    initialModel
+
+                Noop ->
+                    model
     in
-    case msg of
-        SetGuess guess ->
-            { model | current = { guess = limit guess, correct = model.current.correct } }
+    ( newModel, Cmd.batch [ saveState newModel ] )
 
-        SetCorrect correct ->
-            { model | current = { guess = model.current.guess, correct = limit correct } }
 
-        Answer ->
-            answer model.current
-                |> unwrap model (\a -> { model | answered = a :: model.answered, current = initUnanswered })
 
-        Restart ->
-            initialModel
-
-        Noop ->
-            model
+-- VIEW
 
 
 view : Model -> Html Msg
@@ -214,4 +214,14 @@ viewCurrent { guess, correct } =
         [ input [ txt "Din gissning" guess, onInput (on SetGuess) ] []
         , input [ txt "Rätt svar" correct, onInput (on SetCorrect) ] []
         , button [ onClick Answer ] [ text "Klar" ]
+        , div [] [ button [ onClick Restart ] [ text "Starta om" ] ]
         ]
+
+
+
+-- HELPERS
+
+
+unwrap : b -> (a -> b) -> Maybe a -> b
+unwrap default f =
+    Maybe.map f >> Maybe.withDefault default
