@@ -1,0 +1,24 @@
+<!DOCTYPE HTML>
+<html>
+
+<head>
+  <meta charset="UTF-8">
+  <title>0-100</title>
+  <script type="text/javascript" src="elm.js"></script>
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+</body>
+
+<script type="text/javascript">
+const ITEM = 'scoreboard-0-100';
+const storedState = localStorage.getItem(ITEM);
+const startingState = storedState ? JSON.parse(storedState) : null;
+const app = Elm.Main.init({ flags: startingState });
+app.ports.setStorage.subscribe(function(state) {
+    localStorage.setItem(ITEM, JSON.stringify(state));
+});
+</script>
+
+</html>
