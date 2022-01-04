@@ -43,7 +43,6 @@ type alias Unanswered =
 type alias Model =
     { answered : List Answered
     , current : Unanswered
-    , questions : List Unanswered
     }
 
 
@@ -51,7 +50,6 @@ initialModel : Model
 initialModel =
     { answered = []
     , current = initUnanswered
-    , questions = List.repeat 20 initUnanswered
     }
 
 
@@ -189,7 +187,7 @@ viewAnswered answered =
     in
     table []
         [ thead []
-            [ th [] [ text "Gissning" ]
+            [ th [] [ text "Ditt svar" ]
             , th [] [ text "Rätt svar" ]
             , th [] [ text "Poäng" ]
             ]
@@ -211,7 +209,7 @@ viewCurrent { guess, correct } =
                 String.toInt input |> unwrap Noop (Just >> msg)
     in
     div []
-        [ input [ txt "Din gissning" guess, onInput (on SetGuess) ] []
+        [ input [ txt "Ditt svar" guess, onInput (on SetGuess) ] []
         , input [ txt "Rätt svar" correct, onInput (on SetCorrect) ] []
         , button [ onClick Answer ] [ text "Klar" ]
         , div [] [ button [ onClick Restart ] [ text "Starta om" ] ]

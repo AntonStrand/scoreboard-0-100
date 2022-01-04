@@ -5147,32 +5147,7 @@ var $elm$core$Task$perform = F2(
 var $elm$browser$Browser$document = _Browser_document;
 var $elm$json$Json$Decode$field = _Json_decodeField;
 var $author$project$Main$initUnanswered = {correct: $elm$core$Maybe$Nothing, guess: $elm$core$Maybe$Nothing};
-var $elm$core$List$repeatHelp = F3(
-	function (result, n, value) {
-		repeatHelp:
-		while (true) {
-			if (n <= 0) {
-				return result;
-			} else {
-				var $temp$result = A2($elm$core$List$cons, value, result),
-					$temp$n = n - 1,
-					$temp$value = value;
-				result = $temp$result;
-				n = $temp$n;
-				value = $temp$value;
-				continue repeatHelp;
-			}
-		}
-	});
-var $elm$core$List$repeat = F2(
-	function (n, value) {
-		return A3($elm$core$List$repeatHelp, _List_Nil, n, value);
-	});
-var $author$project$Main$initialModel = {
-	answered: _List_Nil,
-	current: $author$project$Main$initUnanswered,
-	questions: A2($elm$core$List$repeat, 20, $author$project$Main$initUnanswered)
-};
+var $author$project$Main$initialModel = {answered: _List_Nil, current: $author$project$Main$initUnanswered};
 var $elm$core$Platform$Cmd$batch = _Platform_batch;
 var $elm$core$Platform$Cmd$none = $elm$core$Platform$Cmd$batch(_List_Nil);
 var $elm$core$Maybe$withDefault = F2(
@@ -5320,26 +5295,7 @@ var $author$project$Main$saveState = _Platform_outgoingPort(
 										return A3($elm$core$Maybe$destruct, $elm$json$Json$Encode$null, $elm$json$Json$Encode$int, $);
 									}($.guess))
 								]));
-					}($.current)),
-					_Utils_Tuple2(
-					'questions',
-					$elm$json$Json$Encode$list(
-						function ($) {
-							return $elm$json$Json$Encode$object(
-								_List_fromArray(
-									[
-										_Utils_Tuple2(
-										'correct',
-										function ($) {
-											return A3($elm$core$Maybe$destruct, $elm$json$Json$Encode$null, $elm$json$Json$Encode$int, $);
-										}($.correct)),
-										_Utils_Tuple2(
-										'guess',
-										function ($) {
-											return A3($elm$core$Maybe$destruct, $elm$json$Json$Encode$null, $elm$json$Json$Encode$int, $);
-										}($.guess))
-									]));
-						})($.questions))
+					}($.current))
 				]));
 	});
 var $elm$core$Basics$composeR = F3(
@@ -5683,7 +5639,7 @@ var $author$project$Main$viewAnswered = function (answered) {
 						_List_Nil,
 						_List_fromArray(
 							[
-								$elm$html$Html$text('Gissning')
+								$elm$html$Html$text('Ditt svar')
 							])),
 						A2(
 						$elm$html$Html$th,
@@ -5796,7 +5752,7 @@ var $author$project$Main$viewCurrent = function (_v0) {
 				$elm$html$Html$input,
 				_List_fromArray(
 					[
-						A2(txt, 'Din gissning', guess),
+						A2(txt, 'Ditt svar', guess),
 						$elm$html$Html$Events$onInput(
 						on($author$project$Main$SetGuess))
 					]),
@@ -5902,100 +5858,64 @@ _Platform_export({'Main':{'init':$author$project$Main$main(
 				$elm$core$Maybe$Just,
 				A2(
 					$elm$json$Json$Decode$andThen,
-					function (questions) {
+					function (current) {
 						return A2(
 							$elm$json$Json$Decode$andThen,
-							function (current) {
-								return A2(
-									$elm$json$Json$Decode$andThen,
-									function (answered) {
-										return $elm$json$Json$Decode$succeed(
-											{answered: answered, current: current, questions: questions});
-									},
-									A2(
-										$elm$json$Json$Decode$field,
-										'answered',
-										$elm$json$Json$Decode$list(
-											A2(
-												$elm$json$Json$Decode$andThen,
-												function (score) {
-													return A2(
-														$elm$json$Json$Decode$andThen,
-														function (guess) {
-															return A2(
-																$elm$json$Json$Decode$andThen,
-																function (correct) {
-																	return $elm$json$Json$Decode$succeed(
-																		{correct: correct, guess: guess, score: score});
-																},
-																A2($elm$json$Json$Decode$field, 'correct', $elm$json$Json$Decode$int));
-														},
-														A2($elm$json$Json$Decode$field, 'guess', $elm$json$Json$Decode$int));
-												},
-												A2($elm$json$Json$Decode$field, 'score', $elm$json$Json$Decode$int)))));
+							function (answered) {
+								return $elm$json$Json$Decode$succeed(
+									{answered: answered, current: current});
 							},
 							A2(
 								$elm$json$Json$Decode$field,
-								'current',
-								A2(
+								'answered',
+								$elm$json$Json$Decode$list(
+									A2(
+										$elm$json$Json$Decode$andThen,
+										function (score) {
+											return A2(
+												$elm$json$Json$Decode$andThen,
+												function (guess) {
+													return A2(
+														$elm$json$Json$Decode$andThen,
+														function (correct) {
+															return $elm$json$Json$Decode$succeed(
+																{correct: correct, guess: guess, score: score});
+														},
+														A2($elm$json$Json$Decode$field, 'correct', $elm$json$Json$Decode$int));
+												},
+												A2($elm$json$Json$Decode$field, 'guess', $elm$json$Json$Decode$int));
+										},
+										A2($elm$json$Json$Decode$field, 'score', $elm$json$Json$Decode$int)))));
+					},
+					A2(
+						$elm$json$Json$Decode$field,
+						'current',
+						A2(
+							$elm$json$Json$Decode$andThen,
+							function (guess) {
+								return A2(
 									$elm$json$Json$Decode$andThen,
-									function (guess) {
-										return A2(
-											$elm$json$Json$Decode$andThen,
-											function (correct) {
-												return $elm$json$Json$Decode$succeed(
-													{correct: correct, guess: guess});
-											},
-											A2(
-												$elm$json$Json$Decode$field,
-												'correct',
-												$elm$json$Json$Decode$oneOf(
-													_List_fromArray(
-														[
-															$elm$json$Json$Decode$null($elm$core$Maybe$Nothing),
-															A2($elm$json$Json$Decode$map, $elm$core$Maybe$Just, $elm$json$Json$Decode$int)
-														]))));
+									function (correct) {
+										return $elm$json$Json$Decode$succeed(
+											{correct: correct, guess: guess});
 									},
 									A2(
 										$elm$json$Json$Decode$field,
-										'guess',
+										'correct',
 										$elm$json$Json$Decode$oneOf(
 											_List_fromArray(
 												[
 													$elm$json$Json$Decode$null($elm$core$Maybe$Nothing),
 													A2($elm$json$Json$Decode$map, $elm$core$Maybe$Just, $elm$json$Json$Decode$int)
-												]))))));
-					},
-					A2(
-						$elm$json$Json$Decode$field,
-						'questions',
-						$elm$json$Json$Decode$list(
+												]))));
+							},
 							A2(
-								$elm$json$Json$Decode$andThen,
-								function (guess) {
-									return A2(
-										$elm$json$Json$Decode$andThen,
-										function (correct) {
-											return $elm$json$Json$Decode$succeed(
-												{correct: correct, guess: guess});
-										},
-										A2(
-											$elm$json$Json$Decode$field,
-											'correct',
-											$elm$json$Json$Decode$oneOf(
-												_List_fromArray(
-													[
-														$elm$json$Json$Decode$null($elm$core$Maybe$Nothing),
-														A2($elm$json$Json$Decode$map, $elm$core$Maybe$Just, $elm$json$Json$Decode$int)
-													]))));
-								},
-								A2(
-									$elm$json$Json$Decode$field,
-									'guess',
-									$elm$json$Json$Decode$oneOf(
-										_List_fromArray(
-											[
-												$elm$json$Json$Decode$null($elm$core$Maybe$Nothing),
-												A2($elm$json$Json$Decode$map, $elm$core$Maybe$Just, $elm$json$Json$Decode$int)
-											]))))))))
+								$elm$json$Json$Decode$field,
+								'guess',
+								$elm$json$Json$Decode$oneOf(
+									_List_fromArray(
+										[
+											$elm$json$Json$Decode$null($elm$core$Maybe$Nothing),
+											A2($elm$json$Json$Decode$map, $elm$core$Maybe$Just, $elm$json$Json$Decode$int)
+										])))))))
 			])))(0)}});}(this));
