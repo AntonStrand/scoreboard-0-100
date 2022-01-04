@@ -5214,15 +5214,10 @@ var $elm$core$Basics$clamp = F3(
 	function (low, high, number) {
 		return (_Utils_cmp(number, low) < 0) ? low : ((_Utils_cmp(number, high) > 0) ? high : number);
 	});
-var $elm$core$Maybe$map = F2(
-	function (f, maybe) {
-		if (maybe.$ === 'Just') {
-			var value = maybe.a;
-			return $elm$core$Maybe$Just(
-				f(value));
-		} else {
-			return $elm$core$Maybe$Nothing;
-		}
+var $elm$core$Basics$composeL = F3(
+	function (g, f, x) {
+		return g(
+			f(x));
 	});
 var $elm$core$Maybe$destruct = F3(
 	function (_default, func, maybe) {
@@ -5306,6 +5301,16 @@ var $elm$core$Basics$composeR = F3(
 		return g(
 			f(x));
 	});
+var $elm$core$Maybe$map = F2(
+	function (f, maybe) {
+		if (maybe.$ === 'Just') {
+			var value = maybe.a;
+			return $elm$core$Maybe$Just(
+				f(value));
+		} else {
+			return $elm$core$Maybe$Nothing;
+		}
+	});
 var $author$project$Main$unwrap = F2(
 	function (_default, f) {
 		return A2(
@@ -5315,7 +5320,9 @@ var $author$project$Main$unwrap = F2(
 	});
 var $author$project$Main$update = F2(
 	function (msg, model) {
-		var limit = $elm$core$Maybe$map(
+		var limit = A2(
+			$elm$core$Basics$composeL,
+			$elm$core$Maybe$Just,
 			A2($elm$core$Basics$clamp, 0, 100));
 		var newModel = function () {
 			switch (msg.$) {
@@ -5339,7 +5346,7 @@ var $author$project$Main$update = F2(
 								guess: model.current.guess
 							}
 						});
-				case 'GiveAnswer':
+				case 'SaveAnswer':
 					return A3(
 						$author$project$Main$unwrap,
 						model,
@@ -5667,9 +5674,9 @@ var $author$project$Main$viewAnswers = function (answers) {
 					_Utils_ap(second, third)))
 			]));
 };
-var $author$project$Main$GiveAnswer = {$: 'GiveAnswer'};
 var $author$project$Main$Noop = {$: 'Noop'};
 var $author$project$Main$Restart = {$: 'Restart'};
+var $author$project$Main$SaveAnswer = {$: 'SaveAnswer'};
 var $author$project$Main$SetCorrect = function (a) {
 	return {$: 'SetCorrect', a: a};
 };
@@ -5728,6 +5735,7 @@ var $elm$html$Html$Events$onInput = function (tagger) {
 			A2($elm$json$Json$Decode$map, tagger, $elm$html$Html$Events$targetValue)));
 };
 var $elm$html$Html$Attributes$placeholder = $elm$html$Html$Attributes$stringProperty('placeholder');
+var $elm$html$Html$Attributes$type_ = $elm$html$Html$Attributes$stringProperty('type');
 var $elm$html$Html$Attributes$value = $elm$html$Html$Attributes$stringProperty('value');
 var $author$project$Main$viewCurrent = function (_v0) {
 	var guess = _v0.guess;
@@ -5738,14 +5746,12 @@ var $author$project$Main$viewCurrent = function (_v0) {
 			$elm$html$Html$Attributes$placeholder(ph),
 			A2($elm$core$Basics$composeR, $elm$core$String$fromInt, $elm$html$Html$Attributes$value));
 	};
-	var on = F2(
-		function (msg, input) {
-			return $elm$core$String$isEmpty(input) ? msg($elm$core$Maybe$Nothing) : A3(
-				$author$project$Main$unwrap,
-				$author$project$Main$Noop,
-				A2($elm$core$Basics$composeR, $elm$core$Maybe$Just, msg),
-				$elm$core$String$toInt(input));
-		});
+	var on = function (msg) {
+		return A2(
+			$elm$core$Basics$composeR,
+			$elm$core$String$toInt,
+			A2($author$project$Main$unwrap, $author$project$Main$Noop, msg));
+	};
 	return A2(
 		$elm$html$Html$div,
 		_List_Nil,
@@ -5755,6 +5761,7 @@ var $author$project$Main$viewCurrent = function (_v0) {
 				$elm$html$Html$input,
 				_List_fromArray(
 					[
+						$elm$html$Html$Attributes$type_('number'),
 						A2(txt, 'Ditt svar', guess),
 						$elm$html$Html$Events$onInput(
 						on($author$project$Main$SetGuess))
@@ -5764,6 +5771,7 @@ var $author$project$Main$viewCurrent = function (_v0) {
 				$elm$html$Html$input,
 				_List_fromArray(
 					[
+						$elm$html$Html$Attributes$type_('number'),
 						A2(txt, 'Rätt svar', correct),
 						$elm$html$Html$Events$onInput(
 						on($author$project$Main$SetCorrect))
@@ -5773,7 +5781,7 @@ var $author$project$Main$viewCurrent = function (_v0) {
 				$elm$html$Html$button,
 				_List_fromArray(
 					[
-						$elm$html$Html$Events$onClick($author$project$Main$GiveAnswer)
+						$elm$html$Html$Events$onClick($author$project$Main$SaveAnswer)
 					]),
 				_List_fromArray(
 					[

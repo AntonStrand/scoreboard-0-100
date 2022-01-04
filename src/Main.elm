@@ -72,8 +72,8 @@ init maybeModel =
 
 
 type Msg
-    = SetGuess (Maybe Int)
-    | SetCorrect (Maybe Int)
+    = SetGuess Int
+    | SetCorrect Int
     | SaveAnswer
     | Restart
     | Noop
@@ -104,7 +104,7 @@ update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     let
         limit =
-            Maybe.map (clamp 0 100)
+            Just << clamp 0 100
 
         newModel =
             case msg of
@@ -204,16 +204,12 @@ viewCurrent { guess, correct } =
         txt ph =
             unwrap (placeholder ph) (String.fromInt >> value)
 
-        on msg input =
-            if String.isEmpty input then
-                msg Nothing
-
-            else
-                String.toInt input |> unwrap Noop (Just >> msg)
+        on msg =
+            String.toInt >> unwrap Noop msg
     in
     div []
-        [ input [ txt "Ditt svar" guess, onInput (on SetGuess) ] []
-        , input [ txt "Rätt svar" correct, onInput (on SetCorrect) ] []
+        [ input [ type_ "number", txt "Ditt svar" guess, onInput (on SetGuess) ] []
+        , input [ type_ "number", txt "Rätt svar" correct, onInput (on SetCorrect) ] []
         , button [ onClick SaveAnswer ] [ text "Klar" ]
         , div [] [ button [ onClick Restart ] [ text "Starta om" ] ]
         ]
