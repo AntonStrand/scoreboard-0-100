@@ -17,6 +17,25 @@ main =
 
 
 
+-- SETTINGS
+
+
+numberOfQuestions : Int
+numberOfQuestions =
+    21
+
+
+sectionLength : Int
+sectionLength =
+    numberOfQuestions // 3
+
+
+correctGuessPoint : Int
+correctGuessPoint =
+    -10
+
+
+
 -- PORTS
 
 
@@ -84,7 +103,7 @@ answer { guess, correct } =
     let
         calcScore diff =
             if diff == 0 then
-                -10
+                correctGuessPoint
 
             else
                 abs diff
@@ -135,7 +154,7 @@ view : Model -> Html Msg
 view model =
     div []
         [ viewAnswers model.answers
-        , if List.length model.answers < 21 then
+        , if List.length model.answers < numberOfQuestions then
             viewCurrent model.current
 
           else
@@ -168,7 +187,7 @@ viewAnswers answers =
 
         toSection sectionAnswers =
             List.map viewAnswer sectionAnswers
-                ++ [ if List.length sectionAnswers < 7 then
+                ++ [ if List.length sectionAnswers < sectionLength then
                         text ""
 
                      else
@@ -179,14 +198,17 @@ viewAnswers answers =
                             ]
                    ]
 
+        orderedAnswers =
+            List.reverse answers
+
         first =
-            answers |> List.reverse |> List.take 7 |> toSection
+            orderedAnswers |> List.take sectionLength |> toSection
 
         second =
-            answers |> List.reverse |> List.drop 7 |> List.take 7 |> toSection
+            orderedAnswers |> List.drop sectionLength |> List.take sectionLength |> toSection
 
         third =
-            answers |> List.reverse |> List.drop 14 |> toSection
+            orderedAnswers |> List.drop (sectionLength * 2) |> toSection
     in
     table []
         [ thead []

@@ -5176,6 +5176,7 @@ var $elm$core$Basics$negate = function (n) {
 var $elm$core$Basics$abs = function (n) {
 	return (n < 0) ? (-n) : n;
 };
+var $author$project$Main$correctGuessPoint = -10;
 var $elm$core$Maybe$map2 = F3(
 	function (func, ma, mb) {
 		if (ma.$ === 'Nothing') {
@@ -5195,7 +5196,7 @@ var $author$project$Main$answer = function (_v0) {
 	var guess = _v0.guess;
 	var correct = _v0.correct;
 	var calcScore = function (diff) {
-		return (!diff) ? (-10) : $elm$core$Basics$abs(diff);
+		return (!diff) ? $author$project$Main$correctGuessPoint : $elm$core$Basics$abs(diff);
 	};
 	return A3(
 		$elm$core$Maybe$map2,
@@ -5374,6 +5375,7 @@ var $author$project$Main$update = F2(
 					])));
 	});
 var $elm$html$Html$div = _VirtualDom_node('div');
+var $author$project$Main$numberOfQuestions = 21;
 var $elm$json$Json$Encode$string = _Json_wrap;
 var $elm$html$Html$Attributes$stringProperty = F2(
 	function (key, string) {
@@ -5404,6 +5406,7 @@ var $elm$core$List$drop = F2(
 			}
 		}
 	});
+var $author$project$Main$sectionLength = ($author$project$Main$numberOfQuestions / 3) | 0;
 var $elm$core$List$sum = function (numbers) {
 	return A3($elm$core$List$foldl, $elm$core$Basics$add, 0, numbers);
 };
@@ -5589,7 +5592,9 @@ var $author$project$Main$viewAnswers = function (answers) {
 			A2($elm$core$List$map, viewAnswer, sectionAnswers),
 			_List_fromArray(
 				[
-					($elm$core$List$length(sectionAnswers) < 7) ? $elm$html$Html$text('') : A2(
+					(_Utils_cmp(
+					$elm$core$List$length(sectionAnswers),
+					$author$project$Main$sectionLength) < 0) ? $elm$html$Html$text('') : A2(
 					$elm$html$Html$tr,
 					_List_fromArray(
 						[
@@ -5616,24 +5621,16 @@ var $author$project$Main$viewAnswers = function (answers) {
 						]))
 				]));
 	};
-	var third = toSection(
-		A2(
-			$elm$core$List$drop,
-			14,
-			$elm$core$List$reverse(answers)));
+	var orderedAnswers = $elm$core$List$reverse(answers);
 	var second = toSection(
 		A2(
 			$elm$core$List$take,
-			7,
-			A2(
-				$elm$core$List$drop,
-				7,
-				$elm$core$List$reverse(answers))));
+			$author$project$Main$sectionLength,
+			A2($elm$core$List$drop, $author$project$Main$sectionLength, orderedAnswers)));
+	var third = toSection(
+		A2($elm$core$List$drop, $author$project$Main$sectionLength * 2, orderedAnswers));
 	var first = toSection(
-		A2(
-			$elm$core$List$take,
-			7,
-			$elm$core$List$reverse(answers)));
+		A2($elm$core$List$take, $author$project$Main$sectionLength, orderedAnswers));
 	return A2(
 		$elm$html$Html$table,
 		_List_Nil,
@@ -5839,7 +5836,9 @@ var $author$project$Main$view = function (model) {
 		_List_fromArray(
 			[
 				$author$project$Main$viewAnswers(model.answers),
-				($elm$core$List$length(model.answers) < 21) ? $author$project$Main$viewCurrent(model.current) : $author$project$Main$viewScore(model.answers)
+				(_Utils_cmp(
+				$elm$core$List$length(model.answers),
+				$author$project$Main$numberOfQuestions) < 0) ? $author$project$Main$viewCurrent(model.current) : $author$project$Main$viewScore(model.answers)
 			]));
 };
 var $author$project$Main$main = $elm$browser$Browser$document(
