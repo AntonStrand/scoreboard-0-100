@@ -5146,8 +5146,8 @@ var $elm$core$Task$perform = F2(
 	});
 var $elm$browser$Browser$document = _Browser_document;
 var $elm$json$Json$Decode$field = _Json_decodeField;
-var $author$project$Main$initUnanswered = {correct: $elm$core$Maybe$Nothing, guess: $elm$core$Maybe$Nothing};
-var $author$project$Main$initialModel = {answered: _List_Nil, current: $author$project$Main$initUnanswered};
+var $author$project$Main$initCurrent = {correct: $elm$core$Maybe$Nothing, guess: $elm$core$Maybe$Nothing};
+var $author$project$Main$initialModel = {answers: _List_Nil, current: $author$project$Main$initCurrent};
 var $elm$core$Platform$Cmd$batch = _Platform_batch;
 var $elm$core$Platform$Cmd$none = $elm$core$Platform$Cmd$batch(_List_Nil);
 var $elm$core$Maybe$withDefault = F2(
@@ -5194,6 +5194,9 @@ var $elm$core$Maybe$map2 = F3(
 var $author$project$Main$answer = function (_v0) {
 	var guess = _v0.guess;
 	var correct = _v0.correct;
+	var calcScore = function (diff) {
+		return (!diff) ? (-10) : $elm$core$Basics$abs(diff);
+	};
 	return A3(
 		$elm$core$Maybe$map2,
 		F2(
@@ -5201,7 +5204,7 @@ var $author$project$Main$answer = function (_v0) {
 				return {
 					correct: c,
 					guess: g,
-					score: (!(c - g)) ? (-10) : $elm$core$Basics$abs(c - g)
+					score: calcScore(g - c)
 				};
 			}),
 		guess,
@@ -5261,7 +5264,7 @@ var $author$project$Main$saveState = _Platform_outgoingPort(
 			_List_fromArray(
 				[
 					_Utils_Tuple2(
-					'answered',
+					'answers',
 					$elm$json$Json$Encode$list(
 						function ($) {
 							return $elm$json$Json$Encode$object(
@@ -5277,7 +5280,7 @@ var $author$project$Main$saveState = _Platform_outgoingPort(
 										'score',
 										$elm$json$Json$Encode$int($.score))
 									]));
-						})($.answered)),
+						})($.answers)),
 					_Utils_Tuple2(
 					'current',
 					function ($) {
@@ -5336,7 +5339,7 @@ var $author$project$Main$update = F2(
 								guess: model.current.guess
 							}
 						});
-				case 'Answer':
+				case 'GiveAnswer':
 					return A3(
 						$author$project$Main$unwrap,
 						model,
@@ -5344,8 +5347,8 @@ var $author$project$Main$update = F2(
 							return _Utils_update(
 								model,
 								{
-									answered: A2($elm$core$List$cons, a, model.answered),
-									current: $author$project$Main$initUnanswered
+									answers: A2($elm$core$List$cons, a, model.answers),
+									current: $author$project$Main$initCurrent
 								});
 						},
 						$author$project$Main$answer(model.current));
@@ -5538,7 +5541,7 @@ var $elm$html$Html$text = $elm$virtual_dom$VirtualDom$text;
 var $elm$html$Html$th = _VirtualDom_node('th');
 var $elm$html$Html$thead = _VirtualDom_node('thead');
 var $elm$html$Html$tr = _VirtualDom_node('tr');
-var $author$project$Main$viewAnswered = function (answered) {
+var $author$project$Main$viewAnswers = function (answers) {
 	var viewAnswer = function (_v0) {
 		var guess = _v0.guess;
 		var correct = _v0.correct;
@@ -5574,12 +5577,12 @@ var $author$project$Main$viewAnswered = function (answered) {
 						]))
 				]));
 	};
-	var toSection = function (answers) {
+	var toSection = function (sectionAnswers) {
 		return _Utils_ap(
-			A2($elm$core$List$map, viewAnswer, answers),
+			A2($elm$core$List$map, viewAnswer, sectionAnswers),
 			_List_fromArray(
 				[
-					($elm$core$List$length(answers) < 7) ? $elm$html$Html$text('') : A2(
+					($elm$core$List$length(sectionAnswers) < 7) ? $elm$html$Html$text('') : A2(
 					$elm$html$Html$tr,
 					_List_fromArray(
 						[
@@ -5601,7 +5604,7 @@ var $author$project$Main$viewAnswered = function (answered) {
 							_List_fromArray(
 								[
 									$elm$html$Html$text(
-									$author$project$Main$sumScore(answers))
+									$author$project$Main$sumScore(sectionAnswers))
 								]))
 						]))
 				]));
@@ -5610,7 +5613,7 @@ var $author$project$Main$viewAnswered = function (answered) {
 		A2(
 			$elm$core$List$drop,
 			14,
-			$elm$core$List$reverse(answered)));
+			$elm$core$List$reverse(answers)));
 	var second = toSection(
 		A2(
 			$elm$core$List$take,
@@ -5618,12 +5621,12 @@ var $author$project$Main$viewAnswered = function (answered) {
 			A2(
 				$elm$core$List$drop,
 				7,
-				$elm$core$List$reverse(answered))));
+				$elm$core$List$reverse(answers))));
 	var first = toSection(
 		A2(
 			$elm$core$List$take,
 			7,
-			$elm$core$List$reverse(answered)));
+			$elm$core$List$reverse(answers)));
 	return A2(
 		$elm$html$Html$table,
 		_List_Nil,
@@ -5664,7 +5667,7 @@ var $author$project$Main$viewAnswered = function (answered) {
 					_Utils_ap(second, third)))
 			]));
 };
-var $author$project$Main$Answer = {$: 'Answer'};
+var $author$project$Main$GiveAnswer = {$: 'GiveAnswer'};
 var $author$project$Main$Noop = {$: 'Noop'};
 var $author$project$Main$Restart = {$: 'Restart'};
 var $author$project$Main$SetCorrect = function (a) {
@@ -5770,7 +5773,7 @@ var $author$project$Main$viewCurrent = function (_v0) {
 				$elm$html$Html$button,
 				_List_fromArray(
 					[
-						$elm$html$Html$Events$onClick($author$project$Main$Answer)
+						$elm$html$Html$Events$onClick($author$project$Main$GiveAnswer)
 					]),
 				_List_fromArray(
 					[
@@ -5827,8 +5830,8 @@ var $author$project$Main$view = function (model) {
 		_List_Nil,
 		_List_fromArray(
 			[
-				$author$project$Main$viewAnswered(model.answered),
-				($elm$core$List$length(model.answered) < 21) ? $author$project$Main$viewCurrent(model.current) : $author$project$Main$viewScore(model.answered)
+				$author$project$Main$viewAnswers(model.answers),
+				($elm$core$List$length(model.answers) < 21) ? $author$project$Main$viewCurrent(model.current) : $author$project$Main$viewScore(model.answers)
 			]));
 };
 var $author$project$Main$main = $elm$browser$Browser$document(
@@ -5861,13 +5864,13 @@ _Platform_export({'Main':{'init':$author$project$Main$main(
 					function (current) {
 						return A2(
 							$elm$json$Json$Decode$andThen,
-							function (answered) {
+							function (answers) {
 								return $elm$json$Json$Decode$succeed(
-									{answered: answered, current: current});
+									{answers: answers, current: current});
 							},
 							A2(
 								$elm$json$Json$Decode$field,
-								'answered',
+								'answers',
 								$elm$json$Json$Decode$list(
 									A2(
 										$elm$json$Json$Decode$andThen,

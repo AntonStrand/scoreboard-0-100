@@ -1,4 +1,4 @@
-port module Main exposing (..)
+port module Main exposing (main)
 
 import Browser
 import Html exposing (Html, button, div, h1, input, table, tbody, td, text, th, thead, tr)
@@ -27,34 +27,34 @@ port saveState : Model -> Cmd msg
 -- MODEL
 
 
-type alias Answered =
+type alias Answer =
     { guess : Int
     , correct : Int
     , score : Int
     }
 
 
-type alias Unanswered =
+type alias Current =
     { guess : Maybe Int
     , correct : Maybe Int
     }
 
 
 type alias Model =
-    { answered : List Answered
-    , current : Unanswered
+    { answers : List Answer
+    , current : Current
     }
 
 
 initialModel : Model
 initialModel =
-    { answered = []
-    , current = initUnanswered
+    { answers = []
+    , current = initCurrent
     }
 
 
-initUnanswered : Unanswered
-initUnanswered =
+initCurrent : Current
+initCurrent =
     { guess = Nothing
     , correct = Nothing
     }
@@ -74,23 +74,26 @@ init maybeModel =
 type Msg
     = SetGuess (Maybe Int)
     | SetCorrect (Maybe Int)
-    | Answer
+    | SaveAnswer
     | Restart
     | Noop
 
 
-answer : Unanswered -> Maybe Answered
+answer : Current -> Maybe Answer
 answer { guess, correct } =
+    let
+        calcScore diff =
+            if diff == 0 then
+                -10
+
+            else
+                abs diff
+    in
     Maybe.map2
         (\g c ->
             { guess = g
             , correct = c
-            , score =
-                if c - g == 0 then
-                    -10
-
-                else
-                    abs (c - g)
+            , score = calcScore (g - c)
             }
         )
         guess
@@ -111,9 +114,9 @@ update msg model =
                 SetCorrect correct ->
                     { model | current = { guess = model.current.guess, correct = limit correct } }
 
-                Answer ->
+                SaveAnswer ->
                     answer model.current
-                        |> unwrap model (\a -> { model | answered = a :: model.answered, current = initUnanswered })
+                        |> unwrap model (\a -> { model | answers = a :: model.answers, current = initCurrent })
 
                 Restart ->
                     initialModel
@@ -131,16 +134,16 @@ update msg model =
 view : Model -> Html Msg
 view model =
     div []
-        [ viewAnswered model.answered
-        , if List.length model.answered < 21 then
+        [ viewAnswers model.answers
+        , if List.length model.answers < 21 then
             viewCurrent model.current
 
           else
-            viewScore model.answered
+            viewScore model.answers
         ]
 
 
-viewScore : List Answered -> Html Msg
+viewScore : List Answer -> Html Msg
 viewScore answered =
     div []
         [ h1 [] [ text ("Din slutgiltliga poäng: " ++ sumScore answered) ]
@@ -148,13 +151,13 @@ viewScore answered =
         ]
 
 
-sumScore : List Answered -> String
+sumScore : List Answer -> String
 sumScore =
     List.map .score >> List.sum >> String.fromInt
 
 
-viewAnswered : List Answered -> Html msg
-viewAnswered answered =
+viewAnswers : List Answer -> Html msg
+viewAnswers answers =
     let
         viewAnswer { guess, correct, score } =
             tr []
@@ -163,27 +166,27 @@ viewAnswered answered =
                 , td [] [ text (String.fromInt score) ]
                 ]
 
-        toSection answers =
-            List.map viewAnswer answers
-                ++ [ if List.length answers < 7 then
+        toSection sectionAnswers =
+            List.map viewAnswer sectionAnswers
+                ++ [ if List.length sectionAnswers < 7 then
                         text ""
 
                      else
                         tr [ class "sum" ]
                             [ th [] [ text "Delsumma" ]
                             , td [] []
-                            , th [] [ text (sumScore answers) ]
+                            , th [] [ text (sumScore sectionAnswers) ]
                             ]
                    ]
 
         first =
-            answered |> List.reverse |> List.take 7 |> toSection
+            answers |> List.reverse |> List.take 7 |> toSection
 
         second =
-            answered |> List.reverse |> List.drop 7 |> List.take 7 |> toSection
+            answers |> List.reverse |> List.drop 7 |> List.take 7 |> toSection
 
         third =
-            answered |> List.reverse |> List.drop 14 |> toSection
+            answers |> List.reverse |> List.drop 14 |> toSection
     in
     table []
         [ thead []
@@ -195,7 +198,7 @@ viewAnswered answered =
         ]
 
 
-viewCurrent : Unanswered -> Html Msg
+viewCurrent : Current -> Html Msg
 viewCurrent { guess, correct } =
     let
         txt ph =
@@ -211,7 +214,7 @@ viewCurrent { guess, correct } =
     div []
         [ input [ txt "Ditt svar" guess, onInput (on SetGuess) ] []
         , input [ txt "Rätt svar" correct, onInput (on SetCorrect) ] []
-        , button [ onClick Answer ] [ text "Klar" ]
+        , button [ onClick SaveAnswer ] [ text "Klar" ]
         , div [] [ button [ onClick Restart ] [ text "Starta om" ] ]
         ]
 
