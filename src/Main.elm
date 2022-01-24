@@ -229,12 +229,17 @@ viewCurrent { guess, correct } =
         on msg =
             String.toInt >> unwrap Noop msg
     in
-    div []
+    div [ class "wrapper" ]
         [ input [ type_ "number", txt "Ditt svar" guess, onInput (on SetGuess) ] []
         , input [ type_ "number", txt "Rätt svar" correct, onInput (on SetCorrect) ] []
-        , button [ onClick SaveAnswer ] [ text "Klar" ]
+        , primary SaveAnswer "Klar"
         , div [] [ button [ onClick Restart ] [ text "Starta om" ] ]
         ]
+
+
+primary : Msg -> String -> Html Msg
+primary msg label =
+    button [ class "btn-primary", onClick msg ] [ text label ]
 
 
 

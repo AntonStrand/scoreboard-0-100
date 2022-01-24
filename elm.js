@@ -5732,6 +5732,20 @@ var $elm$html$Html$Events$onInput = function (tagger) {
 			A2($elm$json$Json$Decode$map, tagger, $elm$html$Html$Events$targetValue)));
 };
 var $elm$html$Html$Attributes$placeholder = $elm$html$Html$Attributes$stringProperty('placeholder');
+var $author$project$Main$primary = F2(
+	function (msg, label) {
+		return A2(
+			$elm$html$Html$button,
+			_List_fromArray(
+				[
+					$elm$html$Html$Attributes$class('btn-primary'),
+					$elm$html$Html$Events$onClick(msg)
+				]),
+			_List_fromArray(
+				[
+					$elm$html$Html$text(label)
+				]));
+	});
 var $elm$html$Html$Attributes$type_ = $elm$html$Html$Attributes$stringProperty('type');
 var $elm$html$Html$Attributes$value = $elm$html$Html$Attributes$stringProperty('value');
 var $author$project$Main$viewCurrent = function (_v0) {
@@ -5751,7 +5765,10 @@ var $author$project$Main$viewCurrent = function (_v0) {
 	};
 	return A2(
 		$elm$html$Html$div,
-		_List_Nil,
+		_List_fromArray(
+			[
+				$elm$html$Html$Attributes$class('wrapper')
+			]),
 		_List_fromArray(
 			[
 				A2(
@@ -5774,16 +5791,7 @@ var $author$project$Main$viewCurrent = function (_v0) {
 						on($author$project$Main$SetCorrect))
 					]),
 				_List_Nil),
-				A2(
-				$elm$html$Html$button,
-				_List_fromArray(
-					[
-						$elm$html$Html$Events$onClick($author$project$Main$SaveAnswer)
-					]),
-				_List_fromArray(
-					[
-						$elm$html$Html$text('Klar')
-					])),
+				A2($author$project$Main$primary, $author$project$Main$SaveAnswer, 'Klar'),
 				A2(
 				$elm$html$Html$div,
 				_List_Nil,
