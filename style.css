@@ -129,9 +129,15 @@ table {
   border-collapse: collapse;
   border-spacing: 0;
 }
+html {
+  box-sizing: border-box;
+}
+*, *:before, *:after {
+  box-sizing: inherit;
+}
 
 body {
-  font-size: 32px;
+  font-size: 16px;
   font-family: "Source Sans Pro", sans-serif;
   color: rgb(62, 64, 73);
   background-color: rgb(245, 247, 251);
@@ -205,6 +211,7 @@ h1 {
 }
 
 .btn-primary {
+  color: rgb(62, 64, 73);
   border: #5b8e7d solid 1px;
   background-color: #5b8e7d;
   color: white;
@@ -234,6 +241,7 @@ h1 {
 }
 
 input {
+  width: 100%;
   border-radius: 0.7em;
   border: #c0c7db solid 1px;
   padding: 0.8em;
