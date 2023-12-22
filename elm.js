@@ -5358,11 +5358,8 @@ var $author$project$Main$update = F2(
 						$author$project$Main$saveState(newModel)
 					])));
 	});
-var $elm$html$Html$div = _VirtualDom_node('div');
-var $elm$html$Html$h1 = _VirtualDom_node('h1');
-var $author$project$Main$numberOfQuestions = 21;
-var $elm$virtual_dom$VirtualDom$text = _VirtualDom_text;
-var $elm$html$Html$text = $elm$virtual_dom$VirtualDom$text;
+var $author$project$Main$Restart = {$: 3};
+var $elm$html$Html$button = _VirtualDom_node('button');
 var $elm$json$Json$Encode$string = _Json_wrap;
 var $elm$html$Html$Attributes$stringProperty = F2(
 	function (key, string) {
@@ -5372,6 +5369,28 @@ var $elm$html$Html$Attributes$stringProperty = F2(
 			$elm$json$Json$Encode$string(string));
 	});
 var $elm$html$Html$Attributes$class = $elm$html$Html$Attributes$stringProperty('className');
+var $elm$html$Html$div = _VirtualDom_node('div');
+var $elm$html$Html$h1 = _VirtualDom_node('h1');
+var $author$project$Main$numberOfQuestions = 21;
+var $elm$virtual_dom$VirtualDom$Normal = function (a) {
+	return {$: 0, a: a};
+};
+var $elm$virtual_dom$VirtualDom$on = _VirtualDom_on;
+var $elm$html$Html$Events$on = F2(
+	function (event, decoder) {
+		return A2(
+			$elm$virtual_dom$VirtualDom$on,
+			event,
+			$elm$virtual_dom$VirtualDom$Normal(decoder));
+	});
+var $elm$html$Html$Events$onClick = function (msg) {
+	return A2(
+		$elm$html$Html$Events$on,
+		'click',
+		$elm$json$Json$Decode$succeed(msg));
+};
+var $elm$virtual_dom$VirtualDom$text = _VirtualDom_text;
+var $elm$html$Html$text = $elm$virtual_dom$VirtualDom$text;
 var $elm$core$List$drop = F2(
 	function (n, list) {
 		drop:
@@ -5666,7 +5685,6 @@ var $author$project$Main$viewAnswers = function (answers) {
 			]));
 };
 var $author$project$Main$Noop = {$: 4};
-var $author$project$Main$Restart = {$: 3};
 var $author$project$Main$SaveAnswer = {$: 2};
 var $author$project$Main$SetCorrect = function (a) {
 	return {$: 1, a: a};
@@ -5674,25 +5692,8 @@ var $author$project$Main$SetCorrect = function (a) {
 var $author$project$Main$SetGuess = function (a) {
 	return {$: 0, a: a};
 };
-var $elm$html$Html$button = _VirtualDom_node('button');
+var $elm$html$Html$Attributes$id = $elm$html$Html$Attributes$stringProperty('id');
 var $elm$html$Html$input = _VirtualDom_node('input');
-var $elm$virtual_dom$VirtualDom$Normal = function (a) {
-	return {$: 0, a: a};
-};
-var $elm$virtual_dom$VirtualDom$on = _VirtualDom_on;
-var $elm$html$Html$Events$on = F2(
-	function (event, decoder) {
-		return A2(
-			$elm$virtual_dom$VirtualDom$on,
-			event,
-			$elm$virtual_dom$VirtualDom$Normal(decoder));
-	});
-var $elm$html$Html$Events$onClick = function (msg) {
-	return A2(
-		$elm$html$Html$Events$on,
-		'click',
-		$elm$json$Json$Decode$succeed(msg));
-};
 var $elm$html$Html$Events$alwaysStop = function (x) {
 	return _Utils_Tuple2(x, true);
 };
@@ -5762,6 +5763,7 @@ var $author$project$Main$viewCurrent = function (_v0) {
 		$elm$html$Html$div,
 		_List_fromArray(
 			[
+				$elm$html$Html$Attributes$id('answer'),
 				$elm$html$Html$Attributes$class('wrapper')
 			]),
 		_List_fromArray(
@@ -5786,29 +5788,16 @@ var $author$project$Main$viewCurrent = function (_v0) {
 						on($author$project$Main$SetCorrect))
 					]),
 				_List_Nil),
-				A2($author$project$Main$primary, $author$project$Main$SaveAnswer, 'Svara'),
-				A2(
-				$elm$html$Html$div,
-				_List_Nil,
-				_List_fromArray(
-					[
-						A2(
-						$elm$html$Html$button,
-						_List_fromArray(
-							[
-								$elm$html$Html$Events$onClick($author$project$Main$Restart)
-							]),
-						_List_fromArray(
-							[
-								$elm$html$Html$text('Starta om')
-							]))
-					]))
+				A2($author$project$Main$primary, $author$project$Main$SaveAnswer, 'Svara')
 			]));
 };
 var $author$project$Main$viewScore = function (answered) {
 	return A2(
 		$elm$html$Html$div,
-		_List_Nil,
+		_List_fromArray(
+			[
+				$elm$html$Html$Attributes$class('wrapper')
+			]),
 		_List_fromArray(
 			[
 				A2(
@@ -5829,11 +5818,31 @@ var $author$project$Main$view = function (model) {
 		_List_fromArray(
 			[
 				A2(
-				$elm$html$Html$h1,
-				_List_Nil,
+				$elm$html$Html$div,
 				_List_fromArray(
 					[
-						$elm$html$Html$text('0-100')
+						$elm$html$Html$Attributes$class('header')
+					]),
+				_List_fromArray(
+					[
+						A2(
+						$elm$html$Html$h1,
+						_List_Nil,
+						_List_fromArray(
+							[
+								$elm$html$Html$text('0-100')
+							])),
+						A2(
+						$elm$html$Html$button,
+						_List_fromArray(
+							[
+								$elm$html$Html$Attributes$class('btn-secondary'),
+								$elm$html$Html$Events$onClick($author$project$Main$Restart)
+							]),
+						_List_fromArray(
+							[
+								$elm$html$Html$text('Starta om')
+							]))
 					])),
 				$author$project$Main$viewAnswers(model.q),
 				(_Utils_cmp(

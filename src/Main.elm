@@ -1,7 +1,7 @@
 port module Main exposing (main)
 
 import Browser
-import Html exposing (Html, button, div, h1, input, table, tbody, td, text, th, thead, tr)
+import Html exposing (Html, button, div, h1, input, table, tbody, td, text, th, thead, tr, p)
 import Html.Attributes exposing (..)
 import Html.Events exposing (onClick, onInput)
 
@@ -153,7 +153,10 @@ update msg model =
 view : Model -> Html Msg
 view model =
     div []
-        [ h1 [] [ text "0-100" ]
+        [ div [ class "header" ]
+            [ h1 [] [ text "0-100" ]
+            , button [ class "btn-secondary", onClick Restart ] [ text "Starta om" ] 
+            ]
         , viewAnswers model.answers
         , if List.length model.answers < numberOfQuestions then
             viewCurrent model.current
@@ -165,7 +168,7 @@ view model =
 
 viewScore : List Answer -> Html Msg
 viewScore answered =
-    div []
+    div [ class "wrapper" ]
         [ h1 [] [ text ("Din slutgiltliga poäng: " ++ sumScore answered) ]
         , primary Restart "Ny omgång" 
         ]
@@ -231,11 +234,10 @@ viewCurrent { guess, correct } =
         on msg =
             String.toInt >> unwrap Noop msg
     in
-    div [ class "wrapper" ]
+    div [ id "answer", class "wrapper" ]
         [ input [ type_ "number", txt "Ditt svar" guess, onInput (on SetGuess) ] []
         , input [ type_ "number", txt "Rätt svar" correct, onInput (on SetCorrect) ] []
         , primary SaveAnswer "Svara"
-        , div [] [ button [ onClick Restart ] [ text "Starta om" ] ]
         ]
 
 
