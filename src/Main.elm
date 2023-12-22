@@ -6,10 +6,10 @@ import Html.Attributes exposing (..)
 import Html.Events exposing (onClick, onInput)
 
 
-main : Program (Maybe Model) Model Msg
+main : Program () Model Msg
 main =
     Browser.document
-        { init = init
+        { init = \_ -> init
         , view = \model -> { title = "0-100", body = [ view model ] }
         , update = update
         , subscriptions = \_ -> Sub.none
@@ -79,9 +79,9 @@ initCurrent =
     }
 
 
-init : Maybe Model -> ( Model, Cmd Msg )
-init maybeModel =
-    ( Maybe.withDefault initialModel maybeModel
+init : ( Model, Cmd Msg )
+init  =
+    ( initialModel 
     , Cmd.none
     )
 
@@ -153,7 +153,8 @@ update msg model =
 view : Model -> Html Msg
 view model =
     div []
-        [ viewAnswers model.answers
+        [ h1 [] [ text "0-100" ]
+        , viewAnswers model.answers
         , if List.length model.answers < numberOfQuestions then
             viewCurrent model.current
 
@@ -166,7 +167,7 @@ viewScore : List Answer -> Html Msg
 viewScore answered =
     div []
         [ h1 [] [ text ("Din slutgiltliga poäng: " ++ sumScore answered) ]
-        , button [ onClick Restart ] [ text "Ny omgång" ]
+        , primary Restart "Ny omgång" 
         ]
 
 
@@ -210,15 +211,16 @@ viewAnswers answers =
         third =
             orderedAnswers |> List.drop (sectionLength * 2) |> toSection
     in
-    table []
-        [ thead []
-            [ th [] [ text "Ditt svar" ]
-            , th [] [ text "Rätt svar" ]
-            , th [] [ text "Poäng" ]
-            ]
-        , tbody [] (first ++ second ++ third)
-        ]
-
+    div [ class "wrapper" ] [
+      table []
+          [ thead []
+              [ th [] [ text "Ditt svar" ]
+              , th [] [ text "Rätt svar" ]
+              , th [] [ text "Poäng" ]
+              ]
+          , tbody [] (first ++ second ++ third)
+          ]
+    ]
 
 viewCurrent : Current -> Html Msg
 viewCurrent { guess, correct } =
@@ -232,7 +234,7 @@ viewCurrent { guess, correct } =
     div [ class "wrapper" ]
         [ input [ type_ "number", txt "Ditt svar" guess, onInput (on SetGuess) ] []
         , input [ type_ "number", txt "Rätt svar" correct, onInput (on SetCorrect) ] []
-        , primary SaveAnswer "Klar"
+        , primary SaveAnswer "Svara"
         , div [] [ button [ onClick Restart ] [ text "Starta om" ] ]
         ]
 
