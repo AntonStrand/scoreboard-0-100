@@ -1,7 +1,7 @@
 port module Main exposing (main)
 
 import Browser
-import Html exposing (Html, button, div, h1, input, table, tbody, td, text, th, thead, tr, p)
+import Html exposing (Html, button, div, h1, input, table, tbody, td, text, th, thead, tr)
 import Html.Attributes exposing (..)
 import Html.Events exposing (onClick, onInput)
 
@@ -80,8 +80,8 @@ initCurrent =
 
 
 init : ( Model, Cmd Msg )
-init  =
-    ( initialModel 
+init =
+    ( initialModel
     , Cmd.none
     )
 
@@ -91,8 +91,8 @@ init  =
 
 
 type Msg
-    = SetGuess Int
-    | SetCorrect Int
+    = SetGuess (Maybe Int)
+    | SetCorrect (Maybe Int)
     | SaveAnswer
     | Restart
     | Noop
@@ -123,7 +123,7 @@ update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     let
         limit =
-            Just << clamp 0 100
+            Maybe.map (clamp 0 100)
 
         newModel =
             case msg of
@@ -155,7 +155,7 @@ view model =
     div []
         [ div [ class "header" ]
             [ h1 [] [ text "0-100" ]
-            , button [ class "btn-secondary", onClick Restart ] [ text "Starta om" ] 
+            , button [ class "btn-secondary", onClick Restart ] [ text "Starta om" ]
             ]
         , viewAnswers model.answers
         , if List.length model.answers < numberOfQuestions then
@@ -170,7 +170,7 @@ viewScore : List Answer -> Html Msg
 viewScore answered =
     div [ class "wrapper" ]
         [ h1 [] [ text ("Din slutgiltliga poäng: " ++ sumScore answered) ]
-        , primary Restart "Ny omgång" 
+        , primary Restart "Ny omgång"
         ]
 
 
@@ -214,29 +214,27 @@ viewAnswers answers =
         third =
             orderedAnswers |> List.drop (sectionLength * 2) |> toSection
     in
-    div [ class "wrapper" ] [
-      table []
-          [ thead []
-              [ th [] [ text "Ditt svar" ]
-              , th [] [ text "Rätt svar" ]
-              , th [] [ text "Poäng" ]
-              ]
-          , tbody [] (first ++ second ++ third)
-          ]
-    ]
+    div [ class "wrapper" ]
+        [ table []
+            [ thead []
+                [ th [] [ text "Ditt svar" ]
+                , th [] [ text "Rätt svar" ]
+                , th [] [ text "Poäng" ]
+                ]
+            , tbody [] (first ++ second ++ third)
+            ]
+        ]
+
 
 viewCurrent : Current -> Html Msg
 viewCurrent { guess, correct } =
     let
         txt ph =
             unwrap (placeholder ph) (String.fromInt >> value)
-
-        on msg =
-            String.toInt >> unwrap Noop msg
     in
     div [ id "answer", class "wrapper" ]
-        [ input [ type_ "number", txt "Ditt svar" guess, onInput (on SetGuess) ] []
-        , input [ type_ "number", txt "Rätt svar" correct, onInput (on SetCorrect) ] []
+        [ input [ type_ "number", txt "Ditt svar" guess, onInput (String.toInt >> SetGuess) ] []
+        , input [ type_ "number", txt "Rätt svar" correct, onInput (String.toInt >> SetCorrect) ] []
         , primary SaveAnswer "Svara"
         ]
 
