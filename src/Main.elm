@@ -4,6 +4,7 @@ import Browser
 import Html exposing (Html, button, div, h1, input, table, tbody, td, text, th, thead, tr)
 import Html.Attributes exposing (..)
 import Html.Events exposing (onClick, onInput)
+import Json.Encode as Encode
 
 
 main : Program () Model Msg
@@ -39,7 +40,42 @@ correctGuessPoint =
 -- PORTS
 
 
-port saveState : Model -> Cmd msg
+port storeState : String -> Cmd msg
+
+
+encodeAnswers : List Answer -> Encode.Value
+encodeAnswers =
+    let
+        encodeAnswer : Answer -> Encode.Value
+        encodeAnswer { guess, correct, score } =
+            Encode.object
+                [ ( "guess", Encode.int guess )
+                , ( "correct", Encode.int correct )
+                , ( "score", Encode.int score )
+                ]
+    in
+    Encode.list encodeAnswer
+
+
+encodeCurrent : Current -> Encode.Value
+encodeCurrent { guess, correct } =
+    Encode.object
+        [ ( "guess", Maybe.map Encode.int guess |> Maybe.withDefault Encode.null )
+        , ( "correct", Maybe.map Encode.int correct |> Maybe.withDefault Encode.null )
+        ]
+
+
+encode : Model -> Encode.Value
+encode { answers, current } =
+    Encode.object
+        [ ( "answers", encodeAnswers answers )
+        , ( "current", encodeCurrent current )
+        ]
+
+
+saveState : Model -> Cmd msg
+saveState model =
+    storeState (model |> encode |> Encode.encode 0)
 
 
 

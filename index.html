@@ -10,6 +10,13 @@
   <body>
     <script>
       var app = Elm.Main.init();
+      app.ports.storeState.subscribe(function (state) {
+        if (state.length > 0) {
+          var stateJson = JSON.stringify(state);
+          localStorage.setItem("scoreboard-state", stateJson);
+          console.log("Saved state: ", stateJson);
+        }
+      });
     </script>
   </body>
 </html>
