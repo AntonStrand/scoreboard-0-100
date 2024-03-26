@@ -9,12 +9,15 @@
   </head>
   <body>
     <script>
-      var app = Elm.Main.init();
+      const storedState = localStorage.getItem("scoreboard-state");
+      const startingState = storedState ? JSON.parse(storedState) : null;
+
+      const app = Elm.Main.init({ flags: startingState });
+
       app.ports.storeState.subscribe(function (state) {
         if (state.length > 0) {
-          var stateJson = JSON.stringify(state);
+          const stateJson = JSON.stringify(state);
           localStorage.setItem("scoreboard-state", stateJson);
-          console.log("Saved state: ", stateJson);
         }
       });
     </script>

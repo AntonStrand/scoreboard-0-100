@@ -4,13 +4,14 @@ import Browser
 import Html exposing (Html, button, div, h1, input, table, tbody, td, text, th, thead, tr)
 import Html.Attributes exposing (..)
 import Html.Events exposing (onClick, onInput)
-import Json.Encode as Encode
+import Json.Decode as Decode
+import Json.Encode as Encode exposing (Value)
 
 
-main : Program () Model Msg
+main : Program (Maybe Value) Model Msg
 main =
     Browser.document
-        { init = \_ -> init
+        { init = init
         , view = \model -> { title = "0-100", body = [ view model ] }
         , update = update
         , subscriptions = \_ -> Sub.none
@@ -43,43 +44,39 @@ correctGuessPoint =
 port storeState : String -> Cmd msg
 
 
-encodeAnswers : List Answer -> Encode.Value
-encodeAnswers =
+saveState : Model -> Cmd msg
+saveState =
     let
-        encodeAnswer : Answer -> Encode.Value
         encodeAnswer { guess, correct, score } =
             Encode.object
                 [ ( "guess", Encode.int guess )
                 , ( "correct", Encode.int correct )
                 , ( "score", Encode.int score )
                 ]
+
+        encodeCurrent { guess, correct } =
+            Encode.object
+                [ ( "guess", Maybe.map Encode.int guess |> Maybe.withDefault Encode.null )
+                , ( "correct", Maybe.map Encode.int correct |> Maybe.withDefault Encode.null )
+                ]
+
+        encodeModel { answers, current } =
+            Encode.object
+                [ ( "answers", Encode.list encodeAnswer answers )
+                , ( "current", encodeCurrent current )
+                ]
     in
-    Encode.list encodeAnswer
-
-
-encodeCurrent : Current -> Encode.Value
-encodeCurrent { guess, correct } =
-    Encode.object
-        [ ( "guess", Maybe.map Encode.int guess |> Maybe.withDefault Encode.null )
-        , ( "correct", Maybe.map Encode.int correct |> Maybe.withDefault Encode.null )
-        ]
-
-
-encode : Model -> Encode.Value
-encode { answers, current } =
-    Encode.object
-        [ ( "answers", encodeAnswers answers )
-        , ( "current", encodeCurrent current )
-        ]
-
-
-saveState : Model -> Cmd msg
-saveState model =
-    storeState (model |> encode |> Encode.encode 0)
+    encodeModel >> Encode.encode 0 >> storeState
 
 
 
 -- MODEL
+
+
+type alias Model =
+    { answers : List Answer
+    , current : Current
+    }
 
 
 type alias Answer =
@@ -92,12 +89,6 @@ type alias Answer =
 type alias Current =
     { guess : Maybe Int
     , correct : Maybe Int
-    }
-
-
-type alias Model =
-    { answers : List Answer
-    , current : Current
     }
 
 
@@ -115,9 +106,32 @@ initCurrent =
     }
 
 
-init : ( Model, Cmd Msg )
-init =
-    ( initialModel
+init : Maybe Value -> ( Model, Cmd Msg )
+init state =
+    let
+        decodeAnswer =
+            Decode.map3 Answer
+                (Decode.field "guess" Decode.int)
+                (Decode.field "correct" Decode.int)
+                (Decode.field "score" Decode.int)
+
+        decodeCurrent =
+            Decode.map2 Current
+                (Decode.field "guess" (Decode.nullable Decode.int))
+                (Decode.field "correct" (Decode.nullable Decode.int))
+
+        decodeModel =
+            Decode.map2 Model
+                (Decode.field "answers" (Decode.list decodeAnswer))
+                (Decode.field "current" decodeCurrent)
+
+        model =
+            state
+                |> Maybe.andThen (Decode.decodeValue Decode.string >> Result.toMaybe)
+                |> Maybe.andThen (Decode.decodeString decodeModel >> Result.toMaybe)
+                |> Maybe.withDefault initialModel
+    in
+    ( model
     , Cmd.none
     )
 
