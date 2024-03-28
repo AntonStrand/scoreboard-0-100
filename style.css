@@ -184,6 +184,12 @@ h1 {
   text-align: center;
 }
 
+h2 {
+  font-size: 1.5em;
+  text-align: center;
+}
+
+
 .header {
   display: flex;
   flex-flow:row;
@@ -223,6 +229,7 @@ h1 {
 }
 
 .btn-secondary {
+  color: rgb(62, 64, 73);
   padding: 0.8em;
   background: none;
   border: #5b8e7d solid 3px;

@@ -1,7 +1,7 @@
 port module Main exposing (main)
 
 import Browser
-import Html exposing (Html, button, div, h1, input, table, tbody, td, text, th, thead, tr)
+import Html exposing (Html, button, div, h1, h2, input, table, tbody, td, text, th, thead, tr)
 import Html.Attributes exposing (..)
 import Html.Events exposing (onClick, onInput)
 import Json.Decode as Decode
@@ -305,7 +305,7 @@ viewCurrent model =
 
         Correct guess correct ->
             div [ id "answer", class "wrapper" ]
-                [ text ("Ditt svar: " ++ String.fromInt guess)
+                [ h2 [] [ text ("Ditt svar: " ++ String.fromInt guess) ]
                 , input [ id "correct", type_ "number", txt "Rätt svar" correct, onInput (String.toInt >> SetCorrect guess) ] []
                 , primary (unwrap Noop (SaveAnswer guess) correct) "Spara omgång"
                 ]

@@ -5802,6 +5802,7 @@ var $author$project$Main$SetCorrect = F2(
 var $author$project$Main$SetGuess = function (a) {
 	return {$: 0, a: a};
 };
+var $elm$html$Html$h2 = _VirtualDom_node('h2');
 var $elm$html$Html$Attributes$id = $elm$html$Html$Attributes$stringProperty('id');
 var $elm$html$Html$input = _VirtualDom_node('input');
 var $elm$html$Html$Events$alwaysStop = function (x) {
@@ -5899,8 +5900,14 @@ var $author$project$Main$viewCurrent = function (model) {
 				]),
 			_List_fromArray(
 				[
-					$elm$html$Html$text(
-					'Ditt svar: ' + $elm$core$String$fromInt(guess)),
+					A2(
+					$elm$html$Html$h2,
+					_List_Nil,
+					_List_fromArray(
+						[
+							$elm$html$Html$text(
+							'Ditt svar: ' + $elm$core$String$fromInt(guess))
+						])),
 					A2(
 					$elm$html$Html$input,
 					_List_fromArray(
