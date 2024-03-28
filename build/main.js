@@ -519,11 +519,11 @@ function _Debug_crash_UNUSED(identifier, fact1, fact2, fact3, fact4)
 
 function _Debug_regionToString(region)
 {
-	if (region.N.D === region.S.D)
+	if (region.M.A === region.R.A)
 	{
-		return 'on line ' + region.N.D;
+		return 'on line ' + region.M.A;
 	}
-	return 'on lines ' + region.N.D + ' through ' + region.S.D;
+	return 'on lines ' + region.M.A + ' through ' + region.R.A;
 }
 
 
@@ -1857,9 +1857,9 @@ var _Platform_worker = F4(function(impl, flagDecoder, debugMetadata, args)
 	return _Platform_initialize(
 		flagDecoder,
 		args,
-		impl.ay,
-		impl.aG,
-		impl.aE,
+		impl.ax,
+		impl.aF,
+		impl.aD,
 		function() { return function() {} }
 	);
 });
@@ -2704,9 +2704,9 @@ var _VirtualDom_mapEventTuple = F2(function(func, tuple)
 var _VirtualDom_mapEventRecord = F2(function(func, record)
 {
 	return {
-		s: func(record.s),
-		O: record.O,
-		L: record.L
+		o: func(record.o),
+		N: record.N,
+		K: record.K
 	}
 });
 
@@ -2974,11 +2974,11 @@ function _VirtualDom_makeCallback(eventNode, initialHandler)
 		// 3 = Custom
 
 		var value = result.a;
-		var message = !tag ? value : tag < 3 ? value.a : value.s;
-		var stopPropagation = tag == 1 ? value.b : tag == 3 && value.O;
+		var message = !tag ? value : tag < 3 ? value.a : value.o;
+		var stopPropagation = tag == 1 ? value.b : tag == 3 && value.N;
 		var currentEventNode = (
 			stopPropagation && event.stopPropagation(),
-			(tag == 2 ? value.b : tag == 3 && value.L) && event.preventDefault(),
+			(tag == 2 ? value.b : tag == 3 && value.K) && event.preventDefault(),
 			eventNode
 		);
 		var tagger;
@@ -3928,11 +3928,11 @@ var _Browser_element = _Debugger_element || F4(function(impl, flagDecoder, debug
 	return _Platform_initialize(
 		flagDecoder,
 		args,
-		impl.ay,
-		impl.aG,
-		impl.aE,
+		impl.ax,
+		impl.aF,
+		impl.aD,
 		function(sendToApp, initialModel) {
-			var view = impl.aH;
+			var view = impl.aG;
 			/**/
 			var domNode = args['node'];
 			//*/
@@ -3964,12 +3964,12 @@ var _Browser_document = _Debugger_document || F4(function(impl, flagDecoder, deb
 	return _Platform_initialize(
 		flagDecoder,
 		args,
-		impl.ay,
-		impl.aG,
-		impl.aE,
+		impl.ax,
+		impl.aF,
+		impl.aD,
 		function(sendToApp, initialModel) {
-			var divertHrefToApp = impl.M && impl.M(sendToApp)
-			var view = impl.aH;
+			var divertHrefToApp = impl.L && impl.L(sendToApp)
+			var view = impl.aG;
 			var title = _VirtualDom_doc.title;
 			var bodyNode = _VirtualDom_doc.body;
 			var currNode = _VirtualDom_virtualize(bodyNode);
@@ -3977,12 +3977,12 @@ var _Browser_document = _Debugger_document || F4(function(impl, flagDecoder, deb
 			{
 				_VirtualDom_divertHrefToApp = divertHrefToApp;
 				var doc = view(model);
-				var nextNode = _VirtualDom_node('body')(_List_Nil)(doc.ar);
+				var nextNode = _VirtualDom_node('body')(_List_Nil)(doc.aq);
 				var patches = _VirtualDom_diff(currNode, nextNode);
 				bodyNode = _VirtualDom_applyPatches(bodyNode, currNode, patches, sendToApp);
 				currNode = nextNode;
 				_VirtualDom_divertHrefToApp = 0;
-				(title !== doc.aF) && (_VirtualDom_doc.title = title = doc.aF);
+				(title !== doc.aE) && (_VirtualDom_doc.title = title = doc.aE);
 			});
 		}
 	);
@@ -4038,12 +4038,12 @@ function _Browser_makeAnimator(model, draw)
 
 function _Browser_application(impl)
 {
-	var onUrlChange = impl.aA;
-	var onUrlRequest = impl.aB;
+	var onUrlChange = impl.az;
+	var onUrlRequest = impl.aA;
 	var key = function() { key.a(onUrlChange(_Browser_getUrl())); };
 
 	return _Browser_document({
-		M: function(sendToApp)
+		L: function(sendToApp)
 		{
 			key.a = sendToApp;
 			_Browser_window.addEventListener('popstate', key);
@@ -4059,9 +4059,9 @@ function _Browser_application(impl)
 					var next = $elm$url$Url$fromString(href).a;
 					sendToApp(onUrlRequest(
 						(next
-							&& curr.ae === next.ae
-							&& curr.W === next.W
-							&& curr.ab.a === next.ab.a
+							&& curr.ad === next.ad
+							&& curr.V === next.V
+							&& curr.aa.a === next.aa.a
 						)
 							? $elm$browser$Browser$Internal(next)
 							: $elm$browser$Browser$External(href)
@@ -4069,13 +4069,13 @@ function _Browser_application(impl)
 				}
 			});
 		},
-		ay: function(flags)
+		ax: function(flags)
 		{
-			return A3(impl.ay, flags, _Browser_getUrl(), key);
+			return A3(impl.ax, flags, _Browser_getUrl(), key);
 		},
-		aH: impl.aH,
 		aG: impl.aG,
-		aE: impl.aE
+		aF: impl.aF,
+		aD: impl.aD
 	});
 }
 
@@ -4141,17 +4141,17 @@ var _Browser_decodeEvent = F2(function(decoder, event)
 function _Browser_visibilityInfo()
 {
 	return (typeof _VirtualDom_doc.hidden !== 'undefined')
-		? { aw: 'hidden', as: 'visibilitychange' }
+		? { av: 'hidden', ar: 'visibilitychange' }
 		:
 	(typeof _VirtualDom_doc.mozHidden !== 'undefined')
-		? { aw: 'mozHidden', as: 'mozvisibilitychange' }
+		? { av: 'mozHidden', ar: 'mozvisibilitychange' }
 		:
 	(typeof _VirtualDom_doc.msHidden !== 'undefined')
-		? { aw: 'msHidden', as: 'msvisibilitychange' }
+		? { av: 'msHidden', ar: 'msvisibilitychange' }
 		:
 	(typeof _VirtualDom_doc.webkitHidden !== 'undefined')
-		? { aw: 'webkitHidden', as: 'webkitvisibilitychange' }
-		: { aw: 'hidden', as: 'visibilitychange' };
+		? { av: 'webkitHidden', ar: 'webkitvisibilitychange' }
+		: { av: 'hidden', ar: 'visibilitychange' };
 }
 
 
@@ -4232,12 +4232,12 @@ var _Browser_call = F2(function(functionName, id)
 function _Browser_getViewport()
 {
 	return {
-		ai: _Browser_getScene(),
-		al: {
-			an: _Browser_window.pageXOffset,
-			ao: _Browser_window.pageYOffset,
-			am: _Browser_doc.documentElement.clientWidth,
-			V: _Browser_doc.documentElement.clientHeight
+		ah: _Browser_getScene(),
+		ak: {
+			am: _Browser_window.pageXOffset,
+			an: _Browser_window.pageYOffset,
+			al: _Browser_doc.documentElement.clientWidth,
+			U: _Browser_doc.documentElement.clientHeight
 		}
 	};
 }
@@ -4247,8 +4247,8 @@ function _Browser_getScene()
 	var body = _Browser_doc.body;
 	var elem = _Browser_doc.documentElement;
 	return {
-		am: Math.max(body.scrollWidth, body.offsetWidth, elem.scrollWidth, elem.offsetWidth, elem.clientWidth),
-		V: Math.max(body.scrollHeight, body.offsetHeight, elem.scrollHeight, elem.offsetHeight, elem.clientHeight)
+		al: Math.max(body.scrollWidth, body.offsetWidth, elem.scrollWidth, elem.offsetWidth, elem.clientWidth),
+		U: Math.max(body.scrollHeight, body.offsetHeight, elem.scrollHeight, elem.offsetHeight, elem.clientHeight)
 	};
 }
 
@@ -4271,15 +4271,15 @@ function _Browser_getViewportOf(id)
 	return _Browser_withNode(id, function(node)
 	{
 		return {
-			ai: {
-				am: node.scrollWidth,
-				V: node.scrollHeight
+			ah: {
+				al: node.scrollWidth,
+				U: node.scrollHeight
 			},
-			al: {
-				an: node.scrollLeft,
-				ao: node.scrollTop,
-				am: node.clientWidth,
-				V: node.clientHeight
+			ak: {
+				am: node.scrollLeft,
+				an: node.scrollTop,
+				al: node.clientWidth,
+				U: node.clientHeight
 			}
 		};
 	});
@@ -4309,18 +4309,18 @@ function _Browser_getElement(id)
 		var x = _Browser_window.pageXOffset;
 		var y = _Browser_window.pageYOffset;
 		return {
-			ai: _Browser_getScene(),
-			al: {
-				an: x,
-				ao: y,
-				am: _Browser_doc.documentElement.clientWidth,
-				V: _Browser_doc.documentElement.clientHeight
+			ah: _Browser_getScene(),
+			ak: {
+				am: x,
+				an: y,
+				al: _Browser_doc.documentElement.clientWidth,
+				U: _Browser_doc.documentElement.clientHeight
 			},
-			au: {
-				an: x + rect.left,
-				ao: y + rect.top,
-				am: rect.width,
-				V: rect.height
+			at: {
+				am: x + rect.left,
+				an: y + rect.top,
+				al: rect.width,
+				U: rect.height
 			}
 		};
 	});
@@ -4764,22 +4764,22 @@ var $elm$core$Array$builderToArray = F2(
 		if (!builder.a) {
 			return A4(
 				$elm$core$Array$Array_elm_builtin,
-				$elm$core$Elm$JsArray$length(builder.c),
+				$elm$core$Elm$JsArray$length(builder.b),
 				$elm$core$Array$shiftStep,
 				$elm$core$Elm$JsArray$empty,
-				builder.c);
+				builder.b);
 		} else {
 			var treeLen = builder.a * $elm$core$Array$branchFactor;
 			var depth = $elm$core$Basics$floor(
 				A2($elm$core$Basics$logBase, $elm$core$Array$branchFactor, treeLen - 1));
-			var correctNodeList = reverseNodeList ? $elm$core$List$reverse(builder.d) : builder.d;
+			var correctNodeList = reverseNodeList ? $elm$core$List$reverse(builder.c) : builder.c;
 			var tree = A2($elm$core$Array$treeFromBuilder, correctNodeList, builder.a);
 			return A4(
 				$elm$core$Array$Array_elm_builtin,
-				$elm$core$Elm$JsArray$length(builder.c) + treeLen,
+				$elm$core$Elm$JsArray$length(builder.b) + treeLen,
 				A2($elm$core$Basics$max, 5, depth * $elm$core$Array$shiftStep),
 				tree,
-				builder.c);
+				builder.b);
 		}
 	});
 var $elm$core$Basics$idiv = _Basics_idiv;
@@ -4792,7 +4792,7 @@ var $elm$core$Array$initializeHelp = F5(
 				return A2(
 					$elm$core$Array$builderToArray,
 					false,
-					{d: nodeList, a: (len / $elm$core$Array$branchFactor) | 0, c: tail});
+					{c: nodeList, a: (len / $elm$core$Array$branchFactor) | 0, b: tail});
 			} else {
 				var leaf = $elm$core$Array$Leaf(
 					A3($elm$core$Elm$JsArray$initialize, $elm$core$Array$branchFactor, fromIndex, fn));
@@ -4859,7 +4859,7 @@ var $elm$url$Url$Http = 0;
 var $elm$url$Url$Https = 1;
 var $elm$url$Url$Url = F6(
 	function (protocol, host, port_, path, query, fragment) {
-		return {U: fragment, W: host, _: path, ab: port_, ae: protocol, af: query};
+		return {T: fragment, V: host, Z: path, aa: port_, ad: protocol, ae: query};
 	});
 var $elm$core$String$contains = _String_contains;
 var $elm$core$String$length = _String_length;
@@ -5140,16 +5140,20 @@ var $elm$core$Task$perform = F2(
 var $elm$browser$Browser$document = _Browser_document;
 var $author$project$Main$Answer = F3(
 	function (guess, correct, score) {
-		return {g: correct, j: guess, E: score};
+		return {G: correct, H: guess, B: score};
 	});
-var $author$project$Main$Current = F2(
-	function (guess, correct) {
-		return {g: correct, j: guess};
+var $author$project$Main$Correct = F2(
+	function (a, b) {
+		return {$: 1, a: a, b: b};
 	});
+var $author$project$Main$Guess = function (a) {
+	return {$: 0, a: a};
+};
 var $author$project$Main$Model = F2(
-	function (answers, current) {
-		return {q: answers, l: current};
+	function (answers, state) {
+		return {m: answers, q: state};
 	});
+var $elm$json$Json$Decode$andThen = _Json_andThen;
 var $elm$core$Maybe$andThen = F2(
 	function (callback, maybeValue) {
 		if (!maybeValue.$) {
@@ -5166,9 +5170,12 @@ var $elm$core$Basics$composeR = F3(
 	});
 var $elm$json$Json$Decode$decodeString = _Json_runOnString;
 var $elm$json$Json$Decode$decodeValue = _Json_run;
+var $elm$json$Json$Decode$fail = _Json_fail;
 var $elm$json$Json$Decode$field = _Json_decodeField;
-var $author$project$Main$initCurrent = {g: $elm$core$Maybe$Nothing, j: $elm$core$Maybe$Nothing};
-var $author$project$Main$initialModel = {q: _List_Nil, l: $author$project$Main$initCurrent};
+var $author$project$Main$initialModel = {
+	m: _List_Nil,
+	q: $author$project$Main$Guess($elm$core$Maybe$Nothing)
+};
 var $elm$json$Json$Decode$int = _Json_decodeInt;
 var $elm$json$Json$Decode$list = _Json_decodeList;
 var $elm$json$Json$Decode$map3 = _Json_map3;
@@ -5203,17 +5210,33 @@ var $elm$core$Maybe$withDefault = F2(
 		}
 	});
 var $author$project$Main$init = function (state) {
-	var decodeCurrent = A3(
-		$elm$json$Json$Decode$map2,
-		$author$project$Main$Current,
-		A2(
-			$elm$json$Json$Decode$field,
-			'guess',
-			$elm$json$Json$Decode$nullable($elm$json$Json$Decode$int)),
-		A2(
-			$elm$json$Json$Decode$field,
-			'correct',
-			$elm$json$Json$Decode$nullable($elm$json$Json$Decode$int)));
+	var decodeState = A2(
+		$elm$json$Json$Decode$andThen,
+		function (tag) {
+			switch (tag) {
+				case 'Guess':
+					return A2(
+						$elm$json$Json$Decode$map,
+						$author$project$Main$Guess,
+						A2(
+							$elm$json$Json$Decode$field,
+							'guess',
+							$elm$json$Json$Decode$nullable($elm$json$Json$Decode$int)));
+				case 'Correct':
+					return A3(
+						$elm$json$Json$Decode$map2,
+						$author$project$Main$Correct,
+						A2($elm$json$Json$Decode$field, 'guess', $elm$json$Json$Decode$int),
+						A2(
+							$elm$json$Json$Decode$field,
+							'correct',
+							$elm$json$Json$Decode$nullable($elm$json$Json$Decode$int)));
+				default:
+					var invalidState = tag;
+					return $elm$json$Json$Decode$fail('Invalid state: ' + invalidState);
+			}
+		},
+		A2($elm$json$Json$Decode$field, 'tag', $elm$json$Json$Decode$string));
 	var decodeAnswer = A4(
 		$elm$json$Json$Decode$map3,
 		$author$project$Main$Answer,
@@ -5227,7 +5250,7 @@ var $author$project$Main$init = function (state) {
 			$elm$json$Json$Decode$field,
 			'answers',
 			$elm$json$Json$Decode$list(decodeAnswer)),
-		A2($elm$json$Json$Decode$field, 'current', decodeCurrent));
+		A2($elm$json$Json$Decode$field, 'state', decodeState));
 	var model = A2(
 		$elm$core$Maybe$withDefault,
 		$author$project$Main$initialModel,
@@ -5255,40 +5278,12 @@ var $elm$core$Basics$abs = function (n) {
 	return (n < 0) ? (-n) : n;
 };
 var $author$project$Main$correctGuessPoint = -10;
-var $elm$core$Maybe$map2 = F3(
-	function (func, ma, mb) {
-		if (ma.$ === 1) {
-			return $elm$core$Maybe$Nothing;
-		} else {
-			var a = ma.a;
-			if (mb.$ === 1) {
-				return $elm$core$Maybe$Nothing;
-			} else {
-				var b = mb.a;
-				return $elm$core$Maybe$Just(
-					A2(func, a, b));
-			}
-		}
+var $author$project$Main$answer = F2(
+	function (guess, correct) {
+		var diff = $elm$core$Basics$abs(guess - correct);
+		var score = (!diff) ? $author$project$Main$correctGuessPoint : diff;
+		return {G: correct, H: guess, B: score};
 	});
-var $author$project$Main$answer = function (_v0) {
-	var guess = _v0.j;
-	var correct = _v0.g;
-	var calcScore = function (diff) {
-		return (!diff) ? $author$project$Main$correctGuessPoint : $elm$core$Basics$abs(diff);
-	};
-	return A3(
-		$elm$core$Maybe$map2,
-		F2(
-			function (g, c) {
-				return {
-					g: c,
-					j: g,
-					E: calcScore(g - c)
-				};
-			}),
-		guess,
-		correct);
-};
 var $elm$core$Basics$clamp = F3(
 	function (low, high, number) {
 		return (_Utils_cmp(number, low) < 0) ? low : ((_Utils_cmp(number, high) > 0) ? high : number);
@@ -5329,31 +5324,49 @@ var $elm$json$Json$Encode$object = function (pairs) {
 };
 var $elm$json$Json$Encode$string = _Json_wrap;
 var $author$project$Main$storeState = _Platform_outgoingPort('storeState', $elm$json$Json$Encode$string);
+var $author$project$Main$unwrap = F2(
+	function (_default, f) {
+		return A2(
+			$elm$core$Basics$composeR,
+			$elm$core$Maybe$map(f),
+			$elm$core$Maybe$withDefault(_default));
+	});
 var $author$project$Main$saveState = function () {
-	var encodeCurrent = function (_v2) {
-		var guess = _v2.j;
-		var correct = _v2.g;
-		return $elm$json$Json$Encode$object(
-			_List_fromArray(
-				[
-					_Utils_Tuple2(
-					'guess',
-					A2(
-						$elm$core$Maybe$withDefault,
-						$elm$json$Json$Encode$null,
-						A2($elm$core$Maybe$map, $elm$json$Json$Encode$int, guess))),
-					_Utils_Tuple2(
-					'correct',
-					A2(
-						$elm$core$Maybe$withDefault,
-						$elm$json$Json$Encode$null,
-						A2($elm$core$Maybe$map, $elm$json$Json$Encode$int, correct)))
-				]));
+	var encodeState = function (state) {
+		if (!state.$) {
+			var guess = state.a;
+			return $elm$json$Json$Encode$object(
+				_List_fromArray(
+					[
+						_Utils_Tuple2(
+						'tag',
+						$elm$json$Json$Encode$string('Guess')),
+						_Utils_Tuple2(
+						'guess',
+						A3($author$project$Main$unwrap, $elm$json$Json$Encode$null, $elm$json$Json$Encode$int, guess))
+					]));
+		} else {
+			var guess = state.a;
+			var correct = state.b;
+			return $elm$json$Json$Encode$object(
+				_List_fromArray(
+					[
+						_Utils_Tuple2(
+						'tag',
+						$elm$json$Json$Encode$string('Correct')),
+						_Utils_Tuple2(
+						'guess',
+						$elm$json$Json$Encode$int(guess)),
+						_Utils_Tuple2(
+						'correct',
+						A3($author$project$Main$unwrap, $elm$json$Json$Encode$null, $elm$json$Json$Encode$int, correct))
+					]));
+		}
 	};
 	var encodeAnswer = function (_v1) {
-		var guess = _v1.j;
-		var correct = _v1.g;
-		var score = _v1.E;
+		var guess = _v1.H;
+		var correct = _v1.G;
+		var score = _v1.B;
 		return $elm$json$Json$Encode$object(
 			_List_fromArray(
 				[
@@ -5369,8 +5382,8 @@ var $author$project$Main$saveState = function () {
 				]));
 	};
 	var encodeModel = function (_v0) {
-		var answers = _v0.q;
-		var current = _v0.l;
+		var answers = _v0.m;
+		var state = _v0.q;
 		return $elm$json$Json$Encode$object(
 			_List_fromArray(
 				[
@@ -5378,8 +5391,8 @@ var $author$project$Main$saveState = function () {
 					'answers',
 					A2($elm$json$Json$Encode$list, encodeAnswer, answers)),
 					_Utils_Tuple2(
-					'current',
-					encodeCurrent(current))
+					'state',
+					encodeState(state))
 				]));
 	};
 	return A2(
@@ -5390,13 +5403,6 @@ var $author$project$Main$saveState = function () {
 			$elm$json$Json$Encode$encode(0),
 			$author$project$Main$storeState));
 }();
-var $author$project$Main$unwrap = F2(
-	function (_default, f) {
-		return A2(
-			$elm$core$Basics$composeR,
-			$elm$core$Maybe$map(f),
-			$elm$core$Maybe$withDefault(_default));
-	});
 var $author$project$Main$update = F2(
 	function (msg, model) {
 		var limit = $elm$core$Maybe$map(
@@ -5408,35 +5414,40 @@ var $author$project$Main$update = F2(
 					return _Utils_update(
 						model,
 						{
-							l: {
-								g: model.l.g,
-								j: limit(guess)
-							}
+							q: $author$project$Main$Guess(
+								limit(guess))
 						});
-				case 1:
-					var correct = msg.a;
+				case 2:
+					var guess = msg.a;
 					return _Utils_update(
 						model,
 						{
-							l: {
-								g: limit(correct),
-								j: model.l.j
-							}
+							q: A2($author$project$Main$Correct, guess, $elm$core$Maybe$Nothing)
 						});
-				case 2:
-					return A3(
-						$author$project$Main$unwrap,
+				case 1:
+					var guess = msg.a;
+					var correct = msg.b;
+					return _Utils_update(
 						model,
-						function (a) {
-							return _Utils_update(
-								model,
-								{
-									q: A2($elm$core$List$cons, a, model.q),
-									l: $author$project$Main$initCurrent
-								});
-						},
-						$author$project$Main$answer(model.l));
+						{
+							q: A2(
+								$author$project$Main$Correct,
+								guess,
+								limit(correct))
+						});
 				case 3:
+					var guess = msg.a;
+					var correct = msg.b;
+					return _Utils_update(
+						model,
+						{
+							m: A2(
+								$elm$core$List$cons,
+								A2($author$project$Main$answer, guess, correct),
+								model.m),
+							q: $author$project$Main$Guess($elm$core$Maybe$Nothing)
+						});
+				case 4:
 					return $author$project$Main$initialModel;
 				default:
 					return model;
@@ -5451,7 +5462,7 @@ var $author$project$Main$update = F2(
 					])));
 	});
 var $elm$json$Json$Decode$value = _Json_decodeValue;
-var $author$project$Main$Restart = {$: 3};
+var $author$project$Main$Restart = {$: 4};
 var $elm$html$Html$button = _VirtualDom_node('button');
 var $elm$html$Html$Attributes$stringProperty = F2(
 	function (key, string) {
@@ -5512,7 +5523,7 @@ var $author$project$Main$sumScore = A2(
 	$elm$core$Basics$composeR,
 	$elm$core$List$map(
 		function ($) {
-			return $.E;
+			return $.B;
 		}),
 	A2($elm$core$Basics$composeR, $elm$core$List$sum, $elm$core$String$fromInt));
 var $elm$html$Html$table = _VirtualDom_node('table');
@@ -5649,9 +5660,9 @@ var $elm$html$Html$thead = _VirtualDom_node('thead');
 var $elm$html$Html$tr = _VirtualDom_node('tr');
 var $author$project$Main$viewAnswers = function (answers) {
 	var viewAnswer = function (_v0) {
-		var guess = _v0.j;
-		var correct = _v0.g;
-		var score = _v0.E;
+		var guess = _v0.H;
+		var correct = _v0.G;
+		var score = _v0.B;
 		return A2(
 			$elm$html$Html$tr,
 			_List_Nil,
@@ -5776,10 +5787,18 @@ var $author$project$Main$viewAnswers = function (answers) {
 					]))
 			]));
 };
-var $author$project$Main$SaveAnswer = {$: 2};
-var $author$project$Main$SetCorrect = function (a) {
-	return {$: 1, a: a};
+var $author$project$Main$Noop = {$: 5};
+var $author$project$Main$SaveAnswer = F2(
+	function (a, b) {
+		return {$: 3, a: a, b: b};
+	});
+var $author$project$Main$SaveGuess = function (a) {
+	return {$: 2, a: a};
 };
+var $author$project$Main$SetCorrect = F2(
+	function (a, b) {
+		return {$: 1, a: a, b: b};
+	});
 var $author$project$Main$SetGuess = function (a) {
 	return {$: 0, a: a};
 };
@@ -5833,46 +5852,79 @@ var $author$project$Main$primary = F2(
 	});
 var $elm$html$Html$Attributes$type_ = $elm$html$Html$Attributes$stringProperty('type');
 var $elm$html$Html$Attributes$value = $elm$html$Html$Attributes$stringProperty('value');
-var $author$project$Main$viewCurrent = function (_v0) {
-	var guess = _v0.j;
-	var correct = _v0.g;
+var $author$project$Main$viewCurrent = function (model) {
 	var txt = function (ph) {
 		return A2(
 			$author$project$Main$unwrap,
 			$elm$html$Html$Attributes$placeholder(ph),
 			A2($elm$core$Basics$composeR, $elm$core$String$fromInt, $elm$html$Html$Attributes$value));
 	};
-	return A2(
-		$elm$html$Html$div,
-		_List_fromArray(
-			[
-				$elm$html$Html$Attributes$id('answer'),
-				$elm$html$Html$Attributes$class('wrapper')
-			]),
-		_List_fromArray(
-			[
-				A2(
-				$elm$html$Html$input,
-				_List_fromArray(
-					[
-						$elm$html$Html$Attributes$type_('number'),
-						A2(txt, 'Ditt svar', guess),
-						$elm$html$Html$Events$onInput(
-						A2($elm$core$Basics$composeR, $elm$core$String$toInt, $author$project$Main$SetGuess))
-					]),
-				_List_Nil),
-				A2(
-				$elm$html$Html$input,
-				_List_fromArray(
-					[
-						$elm$html$Html$Attributes$type_('number'),
-						A2(txt, 'Rätt svar', correct),
-						$elm$html$Html$Events$onInput(
-						A2($elm$core$Basics$composeR, $elm$core$String$toInt, $author$project$Main$SetCorrect))
-					]),
-				_List_Nil),
-				A2($author$project$Main$primary, $author$project$Main$SaveAnswer, 'Svara')
-			]));
+	var _v0 = model.q;
+	if (!_v0.$) {
+		var guess = _v0.a;
+		return A2(
+			$elm$html$Html$div,
+			_List_fromArray(
+				[
+					$elm$html$Html$Attributes$id('answer'),
+					$elm$html$Html$Attributes$class('wrapper')
+				]),
+			_List_fromArray(
+				[
+					A2(
+					$elm$html$Html$input,
+					_List_fromArray(
+						[
+							$elm$html$Html$Attributes$id('guess'),
+							$elm$html$Html$Attributes$type_('number'),
+							A2(txt, 'Ditt svar', guess),
+							$elm$html$Html$Events$onInput(
+							A2($elm$core$Basics$composeR, $elm$core$String$toInt, $author$project$Main$SetGuess))
+						]),
+					_List_Nil),
+					A2(
+					$author$project$Main$primary,
+					A3($author$project$Main$unwrap, $author$project$Main$Noop, $author$project$Main$SaveGuess, guess),
+					'Svara')
+				]));
+	} else {
+		var guess = _v0.a;
+		var correct = _v0.b;
+		return A2(
+			$elm$html$Html$div,
+			_List_fromArray(
+				[
+					$elm$html$Html$Attributes$id('answer'),
+					$elm$html$Html$Attributes$class('wrapper')
+				]),
+			_List_fromArray(
+				[
+					$elm$html$Html$text(
+					'Ditt svar: ' + $elm$core$String$fromInt(guess)),
+					A2(
+					$elm$html$Html$input,
+					_List_fromArray(
+						[
+							$elm$html$Html$Attributes$id('correct'),
+							$elm$html$Html$Attributes$type_('number'),
+							A2(txt, 'Rätt svar', correct),
+							$elm$html$Html$Events$onInput(
+							A2(
+								$elm$core$Basics$composeR,
+								$elm$core$String$toInt,
+								$author$project$Main$SetCorrect(guess)))
+						]),
+					_List_Nil),
+					A2(
+					$author$project$Main$primary,
+					A3(
+						$author$project$Main$unwrap,
+						$author$project$Main$Noop,
+						$author$project$Main$SaveAnswer(guess),
+						correct),
+					'Spara omgång')
+				]));
+	}
 };
 var $author$project$Main$viewScore = function (answered) {
 	return A2(
@@ -5927,26 +5979,26 @@ var $author$project$Main$view = function (model) {
 								$elm$html$Html$text('Starta om')
 							]))
 					])),
-				$author$project$Main$viewAnswers(model.q),
+				$author$project$Main$viewAnswers(model.m),
 				(_Utils_cmp(
-				$elm$core$List$length(model.q),
-				$author$project$Main$numberOfQuestions) < 0) ? $author$project$Main$viewCurrent(model.l) : $author$project$Main$viewScore(model.q)
+				$elm$core$List$length(model.m),
+				$author$project$Main$numberOfQuestions) < 0) ? $author$project$Main$viewCurrent(model) : $author$project$Main$viewScore(model.m)
 			]));
 };
 var $author$project$Main$main = $elm$browser$Browser$document(
 	{
-		ay: $author$project$Main$init,
-		aE: function (_v0) {
+		ax: $author$project$Main$init,
+		aD: function (_v0) {
 			return $elm$core$Platform$Sub$none;
 		},
-		aG: $author$project$Main$update,
-		aH: function (model) {
+		aF: $author$project$Main$update,
+		aG: function (model) {
 			return {
-				ar: _List_fromArray(
+				aq: _List_fromArray(
 					[
 						$author$project$Main$view(model)
 					]),
-				aF: '0-100'
+				aE: '0-100'
 			};
 		}
 	});

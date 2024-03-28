@@ -54,16 +54,25 @@ saveState =
                 , ( "score", Encode.int score )
                 ]
 
-        encodeCurrent { guess, correct } =
-            Encode.object
-                [ ( "guess", Maybe.map Encode.int guess |> Maybe.withDefault Encode.null )
-                , ( "correct", Maybe.map Encode.int correct |> Maybe.withDefault Encode.null )
-                ]
+        encodeState state =
+            case state of
+                Guess guess ->
+                    Encode.object
+                        [ ( "tag", Encode.string "Guess" )
+                        , ( "guess", unwrap Encode.null Encode.int guess )
+                        ]
 
-        encodeModel { answers, current } =
+                Correct guess correct ->
+                    Encode.object
+                        [ ( "tag", Encode.string "Correct" )
+                        , ( "guess", Encode.int guess )
+                        , ( "correct", unwrap Encode.null Encode.int correct )
+                        ]
+
+        encodeModel { answers, state } =
             Encode.object
                 [ ( "answers", Encode.list encodeAnswer answers )
-                , ( "current", encodeCurrent current )
+                , ( "state", encodeState state )
                 ]
     in
     encodeModel >> Encode.encode 0 >> storeState
@@ -75,7 +84,7 @@ saveState =
 
 type alias Model =
     { answers : List Answer
-    , current : Current
+    , state : GameState
     }
 
 
@@ -86,23 +95,15 @@ type alias Answer =
     }
 
 
-type alias Current =
-    { guess : Maybe Int
-    , correct : Maybe Int
-    }
+type GameState
+    = Guess (Maybe Int)
+    | Correct Int (Maybe Int)
 
 
 initialModel : Model
 initialModel =
     { answers = []
-    , current = initCurrent
-    }
-
-
-initCurrent : Current
-initCurrent =
-    { guess = Nothing
-    , correct = Nothing
+    , state = Guess Nothing
     }
 
 
@@ -115,15 +116,27 @@ init state =
                 (Decode.field "correct" Decode.int)
                 (Decode.field "score" Decode.int)
 
-        decodeCurrent =
-            Decode.map2 Current
-                (Decode.field "guess" (Decode.nullable Decode.int))
-                (Decode.field "correct" (Decode.nullable Decode.int))
+        decodeState =
+            Decode.field "tag" Decode.string
+                |> Decode.andThen
+                    (\tag ->
+                        case tag of
+                            "Guess" ->
+                                Decode.map Guess (Decode.field "guess" (Decode.nullable Decode.int))
+
+                            "Correct" ->
+                                Decode.map2 Correct
+                                    (Decode.field "guess" Decode.int)
+                                    (Decode.field "correct" (Decode.nullable Decode.int))
+
+                            invalidState ->
+                                Decode.fail ("Invalid state: " ++ invalidState)
+                    )
 
         decodeModel =
             Decode.map2 Model
                 (Decode.field "answers" (Decode.list decodeAnswer))
-                (Decode.field "current" decodeCurrent)
+                (Decode.field "state" decodeState)
 
         model =
             state
@@ -142,31 +155,30 @@ init state =
 
 type Msg
     = SetGuess (Maybe Int)
-    | SetCorrect (Maybe Int)
-    | SaveAnswer
+    | SetCorrect Int (Maybe Int)
+    | SaveGuess Int
+    | SaveAnswer Int Int
     | Restart
     | Noop
 
 
-answer : Current -> Maybe Answer
-answer { guess, correct } =
+answer : Int -> Int -> Answer
+answer guess correct =
     let
-        calcScore diff =
+        diff =
+            abs (guess - correct)
+
+        score =
             if diff == 0 then
                 correctGuessPoint
 
             else
-                abs diff
+                diff
     in
-    Maybe.map2
-        (\g c ->
-            { guess = g
-            , correct = c
-            , score = calcScore (g - c)
-            }
-        )
-        guess
-        correct
+    { guess = guess
+    , correct = correct
+    , score = score
+    }
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -178,14 +190,16 @@ update msg model =
         newModel =
             case msg of
                 SetGuess guess ->
-                    { model | current = { guess = limit guess, correct = model.current.correct } }
+                    { model | state = Guess (limit guess) }
 
-                SetCorrect correct ->
-                    { model | current = { guess = model.current.guess, correct = limit correct } }
+                SaveGuess guess ->
+                    { model | state = Correct guess Nothing }
 
-                SaveAnswer ->
-                    answer model.current
-                        |> unwrap model (\a -> { model | answers = a :: model.answers, current = initCurrent })
+                SetCorrect guess correct ->
+                    { model | state = Correct guess (limit correct) }
+
+                SaveAnswer guess correct ->
+                    { model | state = Guess Nothing, answers = answer guess correct :: model.answers }
 
                 Restart ->
                     initialModel
@@ -209,7 +223,7 @@ view model =
             ]
         , viewAnswers model.answers
         , if List.length model.answers < numberOfQuestions then
-            viewCurrent model.current
+            viewCurrent model
 
           else
             viewScore model.answers
@@ -276,17 +290,25 @@ viewAnswers answers =
         ]
 
 
-viewCurrent : Current -> Html Msg
-viewCurrent { guess, correct } =
+viewCurrent : Model -> Html Msg
+viewCurrent model =
     let
         txt ph =
             unwrap (placeholder ph) (String.fromInt >> value)
     in
-    div [ id "answer", class "wrapper" ]
-        [ input [ type_ "number", txt "Ditt svar" guess, onInput (String.toInt >> SetGuess) ] []
-        , input [ type_ "number", txt "Rätt svar" correct, onInput (String.toInt >> SetCorrect) ] []
-        , primary SaveAnswer "Svara"
-        ]
+    case model.state of
+        Guess guess ->
+            div [ id "answer", class "wrapper" ]
+                [ input [ id "guess", type_ "number", txt "Ditt svar" guess, onInput (String.toInt >> SetGuess) ] []
+                , primary (unwrap Noop SaveGuess guess) "Svara"
+                ]
+
+        Correct guess correct ->
+            div [ id "answer", class "wrapper" ]
+                [ text ("Ditt svar: " ++ String.fromInt guess)
+                , input [ id "correct", type_ "number", txt "Rätt svar" correct, onInput (String.toInt >> SetCorrect guess) ] []
+                , primary (unwrap Noop (SaveAnswer guess) correct) "Spara omgång"
+                ]
 
 
 primary : Msg -> String -> Html Msg
